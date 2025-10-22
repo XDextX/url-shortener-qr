@@ -25,7 +25,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["frontend/src/**/*.{ts,tsx}"],
+      files: ["apps/frontend/src/**/*.{ts,tsx}"],
       env: {
         browser: true
       },
@@ -39,7 +39,7 @@ module.exports = {
       }
     },
     {
-      files: ["src/**/*.ts", "tests/**/*.ts"],
+      files: ["apps/backend/src/**/*.ts", "apps/backend/tests/**/*.ts"],
       env: {
         node: true
       }

@@ -43,3 +43,13 @@ export const findOriginalUrl = async (code: string): Promise<ShortUrlPayload | n
     qrCodeDataUrl
   };
 };
+
+export const resolveOriginalUrl = async (code: string): Promise<string | null> => {
+  const stored = await findByCode(code);
+
+  if (!stored) {
+    return null;
+  }
+
+  return stored.originalUrl;
+};

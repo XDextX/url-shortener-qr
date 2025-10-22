@@ -1,115 +1,85 @@
-# URL Shortener QR
+# URL Shortener QR – Monorepo
 
-Servicio base en Node.js + TypeScript para acortar URLs y generar codigos QR listos para compartir.
+Este repositorio ahora organiza backend, frontend y capa de datos dentro de un mismo monorepo basado en workspaces de npm.
 
-## Caracteristicas
+## Workspaces
 
-- API REST con Express y arquitectura por capas (routes, controllers, services, repositories).
-- Generacion de codigos cortos unicos usando `nanoid`.
-- Creacion de QR en formato `data:image/png` con la libreria `qrcode`.
-- Configuracion centralizada mediante variables de entorno.
-- Pruebas unitarias iniciales con Vitest.
+- `apps/backend`: API en Node.js + Express encargada de acortar URLs, generar QR y redirigir (`GET /:code`).
+- `apps/frontend`: SPA en React + Vite que consume la API y muestra el QR.
+- `packages/database`: esquema Prisma + comandos para gestionar la base de datos (PostgreSQL sugerido).
 
 ## Requisitos
 
-- Node.js >= 18
-- npm >= 9
+- Node.js ≥ 18
+- npm ≥ 9
+- (Opcional) PostgreSQL para usar el paquete de base de datos.
 
-## Instalacion
-
-```bash
-npm install
-```
-
-## Scripts principales
-
-- `npm run dev`: levanta backend y frontend en paralelo (ts-node-dev + Vite).
-- `npm run dev:backend`: ejecuta solo la API en modo watch.
-- `npm run dev:frontend`: ejecuta solo la SPA con Vite.
-- `npm run build`: compila TypeScript a JavaScript (carpeta `dist`).
-- `npm start`: ejecuta la version compilada.
-- `npm test`: corre la suite de Vitest.
-- `npm run lint`: corre ESLint sobre backend y frontend (`.ts` y `.tsx`).
-
-## Variables de entorno
-
-Copia el archivo `.env.example` y renombralo a `.env`, luego ajusta los valores segun el entorno:
+## Primeros pasos
 
 ```bash
-cp .env.example .env
+npm install          # instala dependencias raíz y de los workspaces
 ```
 
-Variables disponibles:
+### Configurar variables
 
-- `PORT`: puerto en el que arrancara el servidor (3000 por defecto).
-- `BASE_URL`: URL base que se usa para construir los short links.
+- Backend: copia `apps/backend/.env.example` a `apps/backend/.env` y ajusta `PORT` / `BASE_URL`.
+- Frontend: copia `apps/frontend/.env.example` a `apps/frontend/.env` y define `VITE_API_BASE_URL`.
+- Base de datos: copia `packages/database/.env.example` a `packages/database/.env` (define `DATABASE_URL`).
 
-## Estructura del proyecto
+## Scripts desde la raíz
+
+- `npm run dev`: corre backend y frontend en paralelo.
+- `npm run dev:backend`: solo backend (`tsx watch`).
+- `npm run dev:frontend`: solo frontend (`vite`).
+- `npm run build`: construye backend y frontend.
+- `npm run lint`: ESLint sobre todo el monorepo.
+- `npm run test`: suite de Vitest del backend.
+
+También puedes entrar en cada workspace y usar sus scripts nativos si lo prefieres.
+
+## Base de datos recomendada
+
+El paquete `packages/database` incluye un esquema inicial de Prisma apuntando a PostgreSQL:
+
+- Modelo `Url` con campos `code`, `originalUrl`, `hits`, timestamps y almacenamiento opcional del QR.
+- Scripts para generar cliente (`npm run generate`), crear migraciones (`npm run migrate:dev`) y desplegarlas (`npm run migrate:deploy`).
+- Se sugiere usar un servicio gestionado (Supabase, Neon, Railway, PlanetScale con gateway Postgres) o contenedor propio.
+- El backend debe importar el cliente de Prisma generado desde este paquete para reemplazar el repositorio en memoria.
+
+Puedes adaptar el esquema para agregar expiración, métricas o relación con usuarios antes de correr migraciones.
+
+## Nueva estructura
 
 ```
 url-shortener-qr/
-├─ src/
-│  ├─ app.ts
-│  ├─ server.ts
-│  ├─ config/
-│  ├─ controllers/
-│  ├─ repositories/
-│  ├─ routes/
-│  ├─ services/
-│  └─ utils/
-├─ tests/
-├─ frontend/
-│  ├─ index.html
-│  ├─ package.json
-│  ├─ src/
-│  └─ vite.config.ts
+├─ apps/
+│  ├─ backend/
+│  │  ├─ src/
+│  │  ├─ tests/
+│  │  ├─ package.json
+│  │  └─ tsconfig.json
+│  └─ frontend/
+│     ├─ src/
+│     ├─ public/
+│     ├─ package.json
+│     └─ tsconfig.json
+├─ packages/
+│  └─ database/
+│     ├─ prisma/schema.prisma
+│     ├─ package.json
+│     └─ README.md
 ├─ docs/
+│  └─ architecture.md
 ├─ package.json
-├─ tsconfig.json
-├─ .env.example
+├─ .eslintrc.cjs
+├─ .eslintignore
+├─ .gitignore
 └─ README.md
 ```
 
-Consulta `docs/architecture.md` para una vision mas detallada del diseno y proximos pasos sugeridos.
+## Próximos pasos sugeridos
 
-## Ejecutar backend y frontend
-
-### 1. Backend (una sola vez)
-
-```bash
-npm install
-cp .env.example .env
-```
-
-Ajusta `PORT` y `BASE_URL` si es necesario.
-
-### 2. Frontend (una sola vez)
-
-```bash
-cd frontend
-npm install
-cp .env.example .env
-```
-
-Revisa `VITE_API_BASE_URL` (por defecto `http://localhost:3000`) y `VITE_PORT`.
-
-### 3. Levantar todo con un comando
-
-En la raiz:
-
-```bash
-npm run dev
-```
-
-Este script ejecuta en paralelo:
-- Backend: `ts-node-dev` en el puerto definido en `.env`.
-- Frontend: Vite en `http://localhost:5173` (o el valor de `VITE_PORT`).
-
-La SPA quedara disponible en `http://localhost:5173` y consumira la API automaticamente.
-
-## Proximos pasos sugeridos
-
-1. Implementar persistencia real (PostgreSQL, Redis, DynamoDB) en el repositorio.
-2. Agregar endpoint de redireccion directa (`GET /:code`) y metricas de uso.
-3. Anadir manejo de usuarios y autenticacion para administrar URLs creadas.
-4. Automatizar despliegues e infraestructura (Dockerfile, CI/CD).
+1. Reemplazar el repositorio en memoria por Prisma (`@url-shortener/database`) y exponer endpoints que consulten PostgreSQL.
+2. Añadir migraciones adicionales para métricas/interacciones y automatizarlas en CI/CD.
+3. Configurar pipelines de deploy independientes (ej. backend en Railway/Fly.io, frontend en Vercel) compartiendo el mismo esquema.
+4. Incorporar autenticación y dashboards de administración usando la misma base de datos.

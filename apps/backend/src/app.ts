@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import urlRoutes from "./routes/url.routes.js";
+import { redirectToOriginalHandler } from "./controllers/url.controller.js";
 
 export const createApp = (): Application => {
   const app = express();
@@ -12,6 +13,8 @@ export const createApp = (): Application => {
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  app.get("/:code", redirectToOriginalHandler);
 
   return app;
 };

@@ -18,3 +18,7 @@ export const saveUrl = async (entity: UrlEntity): Promise<void> => {
 export const findByCode = async (code: string): Promise<UrlEntity | undefined> => {
   return memoryStore.get(code);
 };
+
+export const clearStore = (): void => {
+  memoryStore.clear();
+};

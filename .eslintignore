@@ -1,7 +1,10 @@
 node_modules/
 dist/
 coverage/
-frontend/node_modules/
-frontend/dist/
-frontend/coverage/
+apps/backend/dist/
+apps/frontend/dist/
+apps/frontend/node_modules/
+apps/frontend/coverage/
+apps/backend/coverage/
+packages/database/node_modules/
 *.d.ts

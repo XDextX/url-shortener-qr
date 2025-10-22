@@ -1,27 +1,23 @@
 {
-  "name": "url-shortener-qr",
+  "name": "url-shortener-qr-monorepo",
+  "private": true,
   "version": "0.1.0",
-  "description": "Servicio para acortar URLs y generar códigos QR.",
-  "type": "module",
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend",
+    "packages/database"
+  ],
   "scripts": {
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
-    "dev:backend": "ts-node-dev --respawn --transpile-only --esm src/server.ts",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "build": "tsc",
-    "start": "node dist/server.js",
+    "dev:backend": "npm --workspace @url-shortener/backend run dev",
+    "dev:frontend": "npm --workspace url-shortener-qr-frontend run dev",
+    "build": "npm-run-all build:backend build:frontend",
+    "build:backend": "npm --workspace @url-shortener/backend run build",
+    "build:frontend": "npm --workspace url-shortener-qr-frontend run build",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "nanoid": "^5.0.5",
-    "qrcode": "^1.5.3"
+    "test": "npm --workspace @url-shortener/backend run test"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "eslint": "^8.57.0",
@@ -29,9 +25,6 @@
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "npm-run-all": "^4.1.5",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "5.5.4",
-    "vitest": "^1.6.0"
+    "npm-run-all": "^4.1.5"
   }
 }
