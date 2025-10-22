@@ -16,6 +16,12 @@
 3. Se genera un QR (base64) que representa la URL corta y se devuelve junto con el código.
 4. `GET /api/v1/urls/:code` permite recuperar la URL original y el QR asociado.
 
+## Frontend
+
+- SPA en React + Vite (`frontend/`) que consume la API.
+- Formulario para solicitar `POST /api/v1/urls` y renderizar resultado con QR.
+- Configurable mediante `VITE_API_BASE_URL` para apuntar a distintos despliegues.
+
 ## Próximos pasos
 
 - Sustituir el repositorio en memoria por una base de datos (ej. PostgreSQL, Redis, DynamoDB).
