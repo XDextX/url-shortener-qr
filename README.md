@@ -1,54 +1,61 @@
-# URL Shortener QR – Monorepo
+# URL Shortener QR - Monorepo
 
-Este repositorio ahora organiza backend, frontend y capa de datos dentro de un mismo monorepo basado en workspaces de npm.
+Monorepo con tres workspaces: backend (Express + TypeScript), frontend (React + Vite) y un paquete de base de datos (Prisma con SQLite por defecto).
 
 ## Workspaces
 
-- `apps/backend`: API en Node.js + Express encargada de acortar URLs, generar QR y redirigir (`GET /:code`).
-- `apps/frontend`: SPA en React + Vite que consume la API y muestra el QR.
-- `packages/database`: esquema Prisma + comandos para gestionar la base de datos (PostgreSQL sugerido).
+- `apps/backend`: API REST que acorta URLs, genera QR y redirige (`GET /:code`).
+- `apps/frontend`: SPA que consume la API y muestra el QR generado.
+- `packages/database`: esquema Prisma, cliente compartido y utilidades de migracion.
 
 ## Requisitos
 
-- Node.js ≥ 18
-- npm ≥ 9
-- (Opcional) PostgreSQL para usar el paquete de base de datos.
+- Node.js >= 18
+- npm >= 9
 
-## Primeros pasos
+## Instalacion inicial
 
 ```bash
-npm install          # instala dependencias raíz y de los workspaces
+npm install
 ```
 
-### Configurar variables
+### Variables de entorno
 
-- Backend: copia `apps/backend/.env.example` a `apps/backend/.env` y ajusta `PORT` / `BASE_URL`.
-- Frontend: copia `apps/frontend/.env.example` a `apps/frontend/.env` y define `VITE_API_BASE_URL`.
-- Base de datos: copia `packages/database/.env.example` a `packages/database/.env` (define `DATABASE_URL`).
+- Backend: `cp apps/backend/.env.example apps/backend/.env` y ajusta `PORT`, `BASE_URL` y `DATABASE_URL` si usas otro motor.
+- Frontend: `cp apps/frontend/.env.example apps/frontend/.env` y define `VITE_API_BASE_URL`.
+- Base de datos: `cp packages/database/.env.example packages/database/.env` (usa SQLite en `packages/database/prisma/dev.db` por defecto).
 
-## Scripts desde la raíz
+### Prisma (generacion y migraciones)
 
-- `npm run dev`: corre backend y frontend en paralelo.
-- `npm run dev:backend`: solo backend (`tsx watch`).
-- `npm run dev:frontend`: solo frontend (`vite`).
-- `npm run build`: construye backend y frontend.
-- `npm run lint`: ESLint sobre todo el monorepo.
-- `npm run test`: suite de Vitest del backend.
+```bash
+npm run db:migrate      # aplica migraciones (opcional en el modo SQLite integrado)
+npm run db:generate     # genera el cliente compartido
+npm run build           # compila database, backend y frontend (incluye generate)
+```
 
-También puedes entrar en cada workspace y usar sus scripts nativos si lo prefieres.
+En desarrollos locales con SQLite puedes omitir `db:migrate`; el backend ejecuta `ensureDatabase()` y crea la tabla si no existe. Para motores administrados (Postgres, MySQL, etc.) actualiza `DATABASE_URL` y usa `npm run db:deploy`.
 
-## Base de datos recomendada
+## Scripts desde la raiz
 
-El paquete `packages/database` incluye un esquema inicial de Prisma apuntando a PostgreSQL:
+- `npm run dev`: ejecuta backend (`tsx watch`) y frontend (`vite`) en paralelo.
+- `npm run dev:backend` / `npm run dev:frontend`: servicios individuales.
+- `npm run build`: compila los tres workspaces.
+- `npm run lint`: ESLint sobre el monorepo.
+- `npm run test`: tests del backend (Vitest + Supertest).
+- `npm run db:studio`: abre Prisma Studio con la base configurada.
 
-- Modelo `Url` con campos `code`, `originalUrl`, `hits`, timestamps y almacenamiento opcional del QR.
-- Scripts para generar cliente (`npm run generate`), crear migraciones (`npm run migrate:dev`) y desplegarlas (`npm run migrate:deploy`).
-- Se sugiere usar un servicio gestionado (Supabase, Neon, Railway, PlanetScale con gateway Postgres) o contenedor propio.
-- El backend debe importar el cliente de Prisma generado desde este paquete para reemplazar el repositorio en memoria.
+## Base de datos
 
-Puedes adaptar el esquema para agregar expiración, métricas o relación con usuarios antes de correr migraciones.
+El paquete `@url-shortener/database` expone:
 
-## Nueva estructura
+- Esquema Prisma (`Url` con `code`, `originalUrl`, `hits`, timestamps).
+- Cliente reutilizable: `import { prisma, ensureDatabase } from "@url-shortener/database";`.
+- Scripts `generate`, `migrate:dev`, `migrate:deploy`, `clean` y `studio`.
+- Inicializacion automatica en SQLite mediante `ensureDatabase()` (crea tabla e indices si no existen).
+
+Modifica `schema.prisma` para agregar campos (expiracion, propietario, etc.). Despues ejecuta `npm run db:generate` y, si tu motor lo permite, crea nuevas migraciones con `npm run db:migrate -- --name <nombre>`.
+
+## Estructura
 
 ```
 url-shortener-qr/
@@ -56,30 +63,27 @@ url-shortener-qr/
 │  ├─ backend/
 │  │  ├─ src/
 │  │  ├─ tests/
-│  │  ├─ package.json
-│  │  └─ tsconfig.json
+│  │  └─ package.json
 │  └─ frontend/
 │     ├─ src/
 │     ├─ public/
-│     ├─ package.json
-│     └─ tsconfig.json
+│     └─ package.json
 ├─ packages/
 │  └─ database/
-│     ├─ prisma/schema.prisma
-│     ├─ package.json
-│     └─ README.md
+│     ├─ prisma/
+│     ├─ src/
+│     └─ package.json
 ├─ docs/
 │  └─ architecture.md
 ├─ package.json
 ├─ .eslintrc.cjs
 ├─ .eslintignore
-├─ .gitignore
-└─ README.md
+└─ .gitignore
 ```
 
-## Próximos pasos sugeridos
+## Proximos pasos sugeridos
 
-1. Reemplazar el repositorio en memoria por Prisma (`@url-shortener/database`) y exponer endpoints que consulten PostgreSQL.
-2. Añadir migraciones adicionales para métricas/interacciones y automatizarlas en CI/CD.
-3. Configurar pipelines de deploy independientes (ej. backend en Railway/Fly.io, frontend en Vercel) compartiendo el mismo esquema.
-4. Incorporar autenticación y dashboards de administración usando la misma base de datos.
+1. Agregar nuevos campos al modelo (expiracion, etiquetas, propietario) y generar migraciones acordes.
+2. Exponer estadisticas (ej. `hits`) en endpoints y reflejar las metricas en el frontend.
+3. Configurar pipelines de despliegue (backend en Railway/Fly.io, frontend en Vercel) compartiendo la misma base externa.
+4. Integrar autenticacion y un panel administrativo para gestionar URLs.

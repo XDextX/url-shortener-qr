@@ -11,11 +11,16 @@
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
     "dev:backend": "npm --workspace @url-shortener/backend run dev",
     "dev:frontend": "npm --workspace url-shortener-qr-frontend run dev",
-    "build": "npm-run-all build:backend build:frontend",
+    "build": "npm-run-all build:database build:backend build:frontend",
+    "build:database": "npm --workspace @url-shortener/database run build",
     "build:backend": "npm --workspace @url-shortener/backend run build",
     "build:frontend": "npm --workspace url-shortener-qr-frontend run build",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "npm --workspace @url-shortener/backend run test"
+    "test": "npm --workspace @url-shortener/backend run test",
+    "db:migrate": "npm --workspace @url-shortener/database run migrate:dev",
+    "db:deploy": "npm --workspace @url-shortener/database run migrate:deploy",
+    "db:generate": "npm --workspace @url-shortener/database run generate",
+    "db:studio": "npm --workspace @url-shortener/database run studio"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.2.0",

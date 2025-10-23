@@ -1,24 +1,27 @@
 # Paquete de base de datos
 
-Este paquete centraliza el esquema de Prisma y los comandos para manejar la base de datos del acortador.
+Workspace encargado del esquema y cliente Prisma compartidos.
 
 ## Requisitos
 
-- PostgreSQL disponible (local o gestionado).
-- Definir `DATABASE_URL` en un archivo `.env` (puedes copiar `.env.example`).
+- Define `DATABASE_URL` en un archivo `.env` (copia `.env.example`). Por defecto apunta a SQLite (`file:./dev.db`) y se crea automáticamente si no existe.
+- Para producción puedes cambiar el `provider` de `schema.prisma` y `DATABASE_URL` a Postgres, MySQL, etc.
 
-## Comandos
+## Comandos principales
 
-- `npm install`: instala Prisma y el cliente.
-- `npm run generate`: genera el cliente de Prisma para ser consumido desde el backend.
-- `npm run migrate:dev`: crea la primer migracion (`init`) en desarrollo (usa `DATABASE_URL`).
-- `npm run migrate:deploy`: aplica las migraciones en entornos productivos/CI.
-- `npm run studio`: abre Prisma Studio para inspeccionar datos manualmente.
+- `npm install`: instala Prisma, TypeScript y dependencias internas.
+- `npm run generate`: genera el cliente (queda disponible como dependencia del backend).
+- `npm run migrate:dev`: ejecuta las migraciones en desarrollo (cuando uses motores relacionales administrados).
+- `npm run migrate:deploy`: aplica migraciones en CI/producción.
+- `npm run studio`: abre Prisma Studio.
+- `npm run clean`: elimina `dist/` y la base SQLite (`prisma/dev.db`).
 
-## Integracion con el backend
+En entornos locales donde no puedas ejecutar migraciones (p. ej. SQLite embebido), el backend invoca `ensureDatabase()` para crear la tabla con SQL equivalente.
 
-1. Instala este paquete en el backend mediante workspaces (`npm install @url-shortener/database` desde la raiz).
-2. Dentro del backend importa el cliente generado (`import { PrismaClient } from "@url-shortener/database";`).
-3. Sustituye el repositorio en memoria por operaciones contra Prisma (`prisma.url.findUnique`, `prisma.url.create`, etc.).
+## Integración con el backend
 
-Puedes adaptar `schema.prisma` si necesitas campos adicionales (expiracion, usuario creador, etc.). Ejecuta `npm run migrate:dev -- --name <nombre>` para generar nuevas migraciones versionadas.
+1. Añade la dependencia en el backend (`"@url-shortener/database": "file:../../packages/database"` ya está configurado).
+2. Importa el cliente y helper: `import { prisma, ensureDatabase } from "@url-shortener/database";`.
+3. Utiliza los métodos de Prisma (`prisma.url.create`, `prisma.url.findUnique`, etc.) en los repositorios.
+
+Cuando modifiques el esquema, ejecuta `npm run db:generate` desde la raíz (o `npm --workspace @url-shortener/database run generate`) y, si tu motor lo permite, crea nuevas migraciones con `npm run db:migrate -- --name <nombre>`.

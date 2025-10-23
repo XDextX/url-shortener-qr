@@ -7,4 +7,5 @@ apps/frontend/node_modules/
 apps/frontend/coverage/
 apps/backend/coverage/
 packages/database/node_modules/
+packages/database/dist/
 *.d.ts

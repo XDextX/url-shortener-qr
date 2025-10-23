@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -11,7 +11,7 @@ model Url {
   id          String   @id @default(cuid())
   code        String   @unique
   originalUrl String
-  qrSvg       String?  @db.Text
+  qrSvg       String?
   hits        Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

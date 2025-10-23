@@ -43,6 +43,12 @@ module.exports = {
       env: {
         node: true
       }
+    },
+    {
+      files: ["packages/database/src/**/*.ts"],
+      env: {
+        node: true
+      }
     }
   ]
 };

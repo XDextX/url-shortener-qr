@@ -1,7 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { prisma } from "@url-shortener/database";
+import { clearStore } from "../src/repositories/url.repository.js";
 import { createShortUrl } from "../src/services/url.service.js";
 
 describe("createShortUrl", () => {
+  beforeEach(async () => {
+    await clearStore();
+  });
+
+  afterAll(async () => {
+    await clearStore();
+    await prisma.$disconnect();
+  });
+
   it("genera el payload base con URL corta y QR", async () => {
     const result = await createShortUrl("https://example.com");
 

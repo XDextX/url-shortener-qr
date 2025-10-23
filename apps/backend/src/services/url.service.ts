@@ -1,4 +1,4 @@
-import { createShortCode, saveUrl, findByCode } from "../repositories/url.repository.js";
+import { createShortCode, saveUrl, findByCode, incrementHits } from "../repositories/url.repository.js";
 import { generateQrCode } from "../utils/qr-generator.js";
 import { loadEnvConfig } from "../config/env.js";
 
@@ -50,6 +50,8 @@ export const resolveOriginalUrl = async (code: string): Promise<string | null> =
   if (!stored) {
     return null;
   }
+
+  await incrementHits(code);
 
   return stored.originalUrl;
 };

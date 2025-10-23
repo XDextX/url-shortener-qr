@@ -1,16 +1,18 @@
 import request from "supertest";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { prisma } from "@url-shortener/database";
 import createApp from "../src/app.js";
 import { clearStore } from "../src/repositories/url.repository.js";
 
 const app = createApp();
 
-beforeEach(() => {
-  clearStore();
+beforeEach(async () => {
+  await clearStore();
 });
 
-afterAll(() => {
-  clearStore();
+afterAll(async () => {
+  await clearStore();
+  await prisma.$disconnect();
 });
 
 describe("URL routes", () => {
