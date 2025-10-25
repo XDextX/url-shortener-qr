@@ -1,12 +1,12 @@
 # URL Shortener QR - Monorepo
 
-Monorepo con tres workspaces: backend (Express + TypeScript), frontend (React + Vite) y un paquete de base de datos (Prisma con SQLite por defecto).
+Monorepo con tres workspaces: backend (Express + TypeScript), frontend (React + Vite) y un paquete compartido de acceso a datos (SQLite por defecto con soporte para drivers modulares).
 
 ## Workspaces
 
 - `apps/backend`: API REST que acorta URLs, genera QR y redirige (`GET /:code`).
 - `apps/frontend`: SPA que consume la API y muestra el QR generado.
-- `packages/database`: esquema Prisma, cliente compartido y utilidades de migracion.
+- `packages/database`: utilidades compartidas para conectarse a SQLite y mantener el esquema.
 
 ## Requisitos
 
@@ -21,19 +21,17 @@ npm install
 
 ### Variables de entorno
 
-- Backend: `cp apps/backend/.env.example apps/backend/.env` y ajusta `PORT`, `BASE_URL` y `DATABASE_URL` si usas otro motor.
+- Backend: `cp apps/backend/.env.example apps/backend/.env` y ajusta `PORT`, `BASE_URL` y `DATABASE_URL` si apuntas a otra ruta de base de datos.
 - Frontend: `cp apps/frontend/.env.example apps/frontend/.env` y define `VITE_API_BASE_URL`.
-- Base de datos: `cp packages/database/.env.example packages/database/.env` (usa SQLite en `packages/database/prisma/dev.db` por defecto).
+- Base de datos: `cp packages/database/.env.example packages/database/.env`. Puedes definir `DATABASE_DRIVER` (por defecto `sqlite`) y `DATABASE_URL` en funcion del driver elegido.
 
-### Prisma (generacion y migraciones)
+### Base de datos (SQLite embebido)
 
 ```bash
-npm run db:migrate      # aplica migraciones (opcional en el modo SQLite integrado)
-npm run db:generate     # genera el cliente compartido
-npm run build           # compila database, backend y frontend (incluye generate)
+npm run build           # compila database, backend y frontend
 ```
 
-En desarrollos locales con SQLite puedes omitir `db:migrate`; el backend ejecuta `ensureDatabase()` y crea la tabla si no existe. Para motores administrados (Postgres, MySQL, etc.) actualiza `DATABASE_URL` y usa `npm run db:deploy`.
+La primera vez que inicies el backend con SQLite local, `ensureDatabase()` creara el archivo y la tabla necesarios. Para apuntar a otra ruta (por ejemplo una carpeta compartida o `:memory:`) cambia `DATABASE_URL`.
 
 ## Scripts desde la raiz
 
@@ -42,48 +40,47 @@ En desarrollos locales con SQLite puedes omitir `db:migrate`; el backend ejecuta
 - `npm run build`: compila los tres workspaces.
 - `npm run lint`: ESLint sobre el monorepo.
 - `npm run test`: tests del backend (Vitest + Supertest).
-- `npm run db:studio`: abre Prisma Studio con la base configurada.
 
 ## Base de datos
 
 El paquete `@url-shortener/database` expone:
 
-- Esquema Prisma (`Url` con `code`, `originalUrl`, `hits`, timestamps).
-- Cliente reutilizable: `import { prisma, ensureDatabase } from "@url-shortener/database";`.
-- Scripts `generate`, `migrate:dev`, `migrate:deploy`, `clean` y `studio`.
-- Inicializacion automatica en SQLite mediante `ensureDatabase()` (crea tabla e indices si no existen).
+- Registro de drivers modulares mediante `registerDatabaseDriver(name, factory)` y seleccion dinamica con `DATABASE_DRIVER` o `setDatabaseDriver()`.
+- Inicializacion automatica del esquema con `ensureDatabase()` (el driver `sqlite` crea tabla e indices si no existen).
+- Helpers listos para usar: `insertUrl`, `findUrlByCode`, `incrementUrlHits`, `removeAllUrls` y `getDatabase()` (devuelve la conexion nativa del driver activo).
+- Configuracion mediante `DATABASE_URL` (acepta rutas absolutas o relativas, el prefijo `file:` o `:memory:` para entornos efimeros) u opciones propias del driver que registres.
 
-Modifica `schema.prisma` para agregar campos (expiracion, propietario, etc.). Despues ejecuta `npm run db:generate` y, si tu motor lo permite, crea nuevas migraciones con `npm run db:migrate -- --name <nombre>`.
+Si necesitas ampliar el modelo (por ejemplo agregar expiracion o propietario), edita los helpers en `packages/database/src/index.ts` y aplica los cambios correspondientes en el backend.
 
 ## Estructura
 
 ```
 url-shortener-qr/
-├─ apps/
-│  ├─ backend/
-│  │  ├─ src/
-│  │  ├─ tests/
-│  │  └─ package.json
-│  └─ frontend/
-│     ├─ src/
-│     ├─ public/
-│     └─ package.json
-├─ packages/
-│  └─ database/
-│     ├─ prisma/
-│     ├─ src/
-│     └─ package.json
-├─ docs/
-│  └─ architecture.md
-├─ package.json
-├─ .eslintrc.cjs
-├─ .eslintignore
-└─ .gitignore
+|- apps/
+|  |- backend/
+|  |  |- src/
+|  |  |- tests/
+|  |  `- package.json
+|  `- frontend/
+|     |- src/
+|     |- public/
+|     `- package.json
+|- packages/
+|  `- database/
+|     |- src/
+|     `- package.json
+|- docs/
+|  `- architecture.md
+|- package.json
+|- .eslintrc.cjs
+|- .eslintignore
+`- .gitignore
 ```
 
 ## Proximos pasos sugeridos
 
-1. Agregar nuevos campos al modelo (expiracion, etiquetas, propietario) y generar migraciones acordes.
-2. Exponer estadisticas (ej. `hits`) en endpoints y reflejar las metricas en el frontend.
-3. Configurar pipelines de despliegue (backend en Railway/Fly.io, frontend en Vercel) compartiendo la misma base externa.
-4. Integrar autenticacion y un panel administrativo para gestionar URLs.
+1. Agregar nuevos campos al modelo (expiracion, etiquetas, propietario) y actualizar las consultas en `packages/database`.
+2. Registrar un driver adicional (p. ej. Postgres) que implemente las mismas operaciones para entornos escalados.
+3. Exponer estadisticas (ej. `hits`) en endpoints y reflejar las metricas en el frontend.
+4. Configurar pipelines de despliegue (backend en Railway/Fly.io, frontend en Vercel) compartiendo la misma base o replicando SQLite.
+5. Integrar autenticacion y un panel administrativo para gestionar URLs.

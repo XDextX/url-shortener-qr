@@ -9,7 +9,7 @@ dist/
 apps/backend/dist/
 apps/frontend/dist/
 packages/database/dist/
-packages/database/prisma/dev.db
+packages/database/data/dev.db
 
 # Environment files
 .env
@@ -31,4 +31,4 @@ apps/frontend/coverage/
 .DS_Store
 .vscode/
 *.swp
-packages/database/prisma/dev.db-journal
+packages/database/data/dev.db-journal

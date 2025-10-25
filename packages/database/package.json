@@ -2,28 +2,23 @@
   "name": "@url-shortener/database",
   "private": true,
   "version": "0.1.0",
-  "description": "Shared Prisma schema and client for the URL shortener.",
+  "description": "Shared SQLite access layer for the URL shortener.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "prisma"
+    "dist"
   ],
   "scripts": {
-    "generate": "prisma generate",
-    "migrate:dev": "prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy",
-    "studio": "prisma studio",
-    "build": "npm run generate && tsc -p tsconfig.json",
-    "clean": "rimraf dist prisma/dev.db"
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist"
   },
   "dependencies": {
-    "@prisma/client": "^6.18.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "sql.js": "^1.11.0"
   },
   "devDependencies": {
-    "prisma": "^6.18.0",
+    "@types/sql.js": "^1.0.4",
     "rimraf": "^5.0.10",
     "typescript": "5.5.4"
   }
