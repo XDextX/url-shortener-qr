@@ -10,6 +10,7 @@ apps/backend/dist/
 apps/frontend/dist/
 packages/database/dist/
 packages/database/data/dev.db
+apps/frontend/tsconfig.node.tsbuildinfo
 
 # Environment files
 .env
