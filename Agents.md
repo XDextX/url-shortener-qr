@@ -47,3 +47,10 @@ Configura el nuevo driver con `DATABASE_DRIVER=postgres` y las credenciales nece
 - Mantener los PRs pequeños y auto-contenidos facilita la revision.  
 - Actualiza la documentacion (`README.md`, `docs/architecture.md`) siempre que cambies comportamientos visibles.  
 - Al cerrar una tarea, incluye resultados de pruebas relevantes en la descripcion del commit o PR.
+
+## Documentar el codigo
+
+- Prefiere comentarios TSDoc (/** ... */) para describir contratos, servicios y funciones expuestas.
+- Documenta entradas y salidas relevantes, asi como comportamiento especial o efectos secundarios que impacten otros componentes.
+- Cuando agregues configuraciones o comandos nuevos, actualiza esta guia o la documentacion asociada para mantener el contexto.
+- Evita comentarios obvios; enfocate en explicar el 'por que' y los detalles que no sean evidentes de inmediato.
