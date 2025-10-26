@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { createShortUrl, ShortUrlResponse } from "@api/client";
+import { Button } from "@components/Button";
 
 interface Props {
   onSuccess: (payload: ShortUrlResponse) => void;
@@ -45,13 +46,9 @@ export const UrlForm = ({ onSuccess }: Props) => {
         />
       </label>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button
-        type="submit"
-        className="flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
-        disabled={loading}
-      >
-        {loading ? "Generando..." : "Generar short URL"}
-      </button>
+      <Button type="submit" loading={loading} loadingText="Generando...">
+        Generar short URL
+      </Button>
     </form>
   );
 };

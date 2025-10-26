@@ -1,13 +1,43 @@
+import { useState } from "react";
 import { ShortUrlResponse } from "@api/client";
+import { Button } from "@components/Button";
 
 interface Props {
   result: ShortUrlResponse | null;
 }
 
 export const ResultCard = ({ result }: Props) => {
+  const [copying, setCopying] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "success" | "error">("idle");
+  
   if (!result) {
     return null;
   }
+
+  const handleCopy = async () => {
+    if (copying) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyState("error");
+      return;
+    }
+
+    try {
+      setCopying(true);
+      await navigator.clipboard.writeText(result.shortUrl);
+      setCopyState("success");
+    } catch (error) {
+      setCopyState("error");
+    } finally {
+      setCopying(false);
+      window.setTimeout(() => setCopyState("idle"), 2000);
+    }
+  };
+
+  const copyLabel =
+    copyState === "success" ? "URL copiada" : copyState === "error" ? "Error al copiar" : "Copiar URL";
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -24,6 +54,18 @@ export const ResultCard = ({ result }: Props) => {
         >
           {result.shortUrl}
         </a>
+        <Button
+          type="button"
+          onClick={handleCopy}
+          loading={copying}
+          loadingText="Copiando..."
+          className="mt-3 w-full sm:w-auto"
+        >
+          {copyLabel}
+        </Button>
+        {copyState === "error" ? (
+          <p className="mt-1 text-xs text-red-600">No se pudo copiar automáticamente. Inténtalo manualmente.</p>
+        ) : null}
       </div>
 
       <div className="mt-6">
