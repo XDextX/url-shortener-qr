@@ -9,16 +9,25 @@ let cachedDriver: Promise<DatabaseDriver> | null = null;
 
 const normaliseName = (name: string): string => name.trim().toLowerCase();
 
+/**
+ * Registers a driver factory under the provided name.
+ */
 export const registerDatabaseDriver = (name: string, factory: DriverFactory): void => {
   drivers.set(normaliseName(name), factory);
   cachedDriver = null;
 };
 
+/**
+ * Forces the driver selection for the current process.
+ */
 export const setDatabaseDriver = (name: string): void => {
   driverOverride = normaliseName(name);
   cachedDriver = null;
 };
 
+/**
+ * Resolves the driver name currently in use.
+ */
 export const getActiveDatabaseDriverName = (): string => {
   const resolved = driverOverride ?? process.env.DATABASE_DRIVER ?? "sqlite";
   return normaliseName(resolved);
@@ -42,31 +51,57 @@ const resolveDriver = async (): Promise<DatabaseDriver> => {
 
 registerDatabaseDriver("sqlite", createSqliteDriver);
 
+/**
+ * Ensures the database schema is ready.
+ */
 export const ensureDatabase = async (): Promise<void> => {
   const driver = await resolveDriver();
   await driver.ensure();
 };
 
+/**
+ * Persists a new short URL entry using the active driver.
+ */
 export const insertUrl = async (input: InsertUrlInput): Promise<UrlRecord> => {
   const driver = await resolveDriver();
   return driver.insert(input);
 };
 
+/**
+ * Finds a short URL by its code.
+ */
 export const findUrlByCode = async (code: string): Promise<UrlRecord | null> => {
   const driver = await resolveDriver();
   return driver.findByCode(code);
 };
 
+/**
+ * Finds a short URL by its original URL.
+ */
+export const findUrlByOriginalUrl = async (originalUrl: string): Promise<UrlRecord | null> => {
+  const driver = await resolveDriver();
+  return driver.findByOriginalUrl(originalUrl);
+};
+
+/**
+ * Increments the hit count for the provided code.
+ */
 export const incrementUrlHits = async (code: string): Promise<boolean> => {
   const driver = await resolveDriver();
   return driver.incrementHits(code);
 };
 
+/**
+ * Removes every URL stored by the active driver.
+ */
 export const removeAllUrls = async (): Promise<void> => {
   const driver = await resolveDriver();
   await driver.clear();
 };
 
+/**
+ * Retrieves the raw database connection exposed by the active driver.
+ */
 export const getDatabase = async <T = unknown>(): Promise<T> => {
   const driver = await resolveDriver();
 

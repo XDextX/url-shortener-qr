@@ -1,9 +1,18 @@
-import { createShortCode, saveUrl, findByCode, incrementHits } from "../repositories/url.repository.js";
+import {
+  createShortCode,
+  saveUrl,
+  findByCode,
+  findByOriginalUrl,
+  incrementHits
+} from "../repositories/url.repository.js";
 import { generateQrCode } from "../utils/qr-generator.js";
 import { loadEnvConfig } from "../config/env.js";
 
 const { baseUrl } = loadEnvConfig();
 
+/**
+ * Shape returned by service methods when dealing with short URLs.
+ */
 export interface ShortUrlPayload {
   code: string;
   shortUrl: string;
@@ -11,21 +20,33 @@ export interface ShortUrlPayload {
   qrCodeDataUrl: string;
 }
 
+/**
+ * Creates a short URL for the provided original address. If the URL already
+ * exists, the stored record is reused to avoid generating duplicate codes.
+ */
 export const createShortUrl = async (originalUrl: string): Promise<ShortUrlPayload> => {
-  const code = createShortCode();
-  await saveUrl({ code, originalUrl });
+  const existing = await findByOriginalUrl(originalUrl);
+  const record =
+    existing ??
+    (await saveUrl({
+      code: createShortCode(),
+      originalUrl
+    }));
 
-  const shortUrl = `${baseUrl}/${code}`;
-  const qrCodeDataUrl = await generateQrCode(shortUrl);
+  const shortUrl = `${baseUrl}/${record.code}`;
+  const qrCodeDataUrl = record.qrSvg ?? (await generateQrCode(shortUrl));
 
   return {
-    code,
+    code: record.code,
     shortUrl,
-    originalUrl,
+    originalUrl: record.originalUrl,
     qrCodeDataUrl
   };
 };
 
+/**
+ * Retrieves a previously stored URL by its short code, including the QR code.
+ */
 export const findOriginalUrl = async (code: string): Promise<ShortUrlPayload | null> => {
   const stored = await findByCode(code);
 
@@ -44,6 +65,9 @@ export const findOriginalUrl = async (code: string): Promise<ShortUrlPayload | n
   };
 };
 
+/**
+ * Resolves and registers a hit for the requested short code.
+ */
 export const resolveOriginalUrl = async (code: string): Promise<string | null> => {
   const stored = await findByCode(code);
 

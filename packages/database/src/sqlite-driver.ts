@@ -24,6 +24,10 @@ type DatabaseConfig = {
   path: string | null;
 };
 
+/**
+ * Normalises different SQLite connection strings to a filesystem path
+ * understood by sql.js.
+ */
 const resolveDatabasePath = (input: string): string => {
   if (input === ":memory:") {
     return input;
@@ -40,6 +44,10 @@ const resolveDatabasePath = (input: string): string => {
   return path.resolve(process.cwd(), input);
 };
 
+/**
+ * Determines whether the database should persist to disk and resolves
+ * the final path based on the current environment variables.
+ */
 const getDatabaseConfig = (): DatabaseConfig => {
   const url = process.env.DATABASE_URL ?? `file:${DEFAULT_DB_PATH}`;
 
@@ -52,6 +60,9 @@ const getDatabaseConfig = (): DatabaseConfig => {
   return { persistent: true, path: resolvedPath };
 };
 
+/**
+ * Locates sql.js WASM assets regardless of where the dependency is hoisted.
+ */
 const locateFile = (filename: string): string => {
   const localPath = path.resolve(__dirname, "../node_modules/sql.js/dist", filename);
   if (existsSync(localPath)) {
@@ -81,6 +92,9 @@ type DatabaseContext = {
 let contextPromise: Promise<DatabaseContext> | null = null;
 let schemaEnsured = false;
 
+/**
+ * Reads the persisted database file if it exists, returning its raw bytes.
+ */
 const loadDatabaseFile = async (filePath: string): Promise<Uint8Array | null> => {
   try {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -94,6 +108,10 @@ const loadDatabaseFile = async (filePath: string): Promise<Uint8Array | null> =>
   }
 };
 
+/**
+ * Persists the in-memory database to disk when the driver is configured
+ * for persistence.
+ */
 const persistDatabase = async (ctx: DatabaseContext): Promise<void> => {
   if (!ctx.persistent || !ctx.path) {
     return;
@@ -104,6 +122,9 @@ const persistDatabase = async (ctx: DatabaseContext): Promise<void> => {
   await fs.writeFile(ctx.path, data);
 };
 
+/**
+ * Lazily initialises the sql.js context and opens the database.
+ */
 const loadContext = async (): Promise<DatabaseContext> => {
   if (!contextPromise) {
     contextPromise = (async () => {
@@ -125,6 +146,9 @@ const loadContext = async (): Promise<DatabaseContext> => {
   return contextPromise;
 };
 
+/**
+ * Creates the Url table and related indexes once per process.
+ */
 const ensureSchema = async (ctx: DatabaseContext): Promise<void> => {
   if (schemaEnsured) {
     return;
@@ -142,12 +166,16 @@ const ensureSchema = async (ctx: DatabaseContext): Promise<void> => {
     );
 
     CREATE UNIQUE INDEX IF NOT EXISTS "Url_code_key" ON "Url"("code");
+    CREATE UNIQUE INDEX IF NOT EXISTS "Url_originalUrl_key" ON "Url"("originalUrl");
   `);
 
   schemaEnsured = true;
   await persistDatabase(ctx);
 };
 
+/**
+ * Converts a raw Url row into a `UrlRecord`.
+ */
 const mapRow = (row: {
   id: string;
   code: string;
@@ -166,6 +194,9 @@ const mapRow = (row: {
   updatedAt: new Date(row.updatedAt)
 });
 
+/**
+ * Extracts the current row from the provided statement.
+ */
 const getRowFromStatement = (statement: Statement): {
   id: string;
   code: string;
@@ -188,11 +219,17 @@ const getRowFromStatement = (statement: Statement): {
   };
 };
 
+/**
+ * Ensures the schema is ready for subsequent operations.
+ */
 const ensure = async (): Promise<void> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
 };
 
+/**
+ * Inserts a new Url record and persists the database when needed.
+ */
 const insert = async (input: InsertUrlInput): Promise<UrlRecord> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
@@ -235,6 +272,9 @@ const insert = async (input: InsertUrlInput): Promise<UrlRecord> => {
   return mapRow(row);
 };
 
+/**
+ * Finds a Url record by its short code.
+ */
 const find = async (code: string): Promise<UrlRecord | null> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
@@ -261,6 +301,38 @@ const find = async (code: string): Promise<UrlRecord | null> => {
   return mapRow(row);
 };
 
+/**
+ * Finds a Url record by the original URL.
+ */
+const findByOriginalUrl = async (originalUrl: string): Promise<UrlRecord | null> => {
+  const ctx = await loadContext();
+  await ensureSchema(ctx);
+
+  const statement = ctx.db.prepare(`
+    SELECT "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt"
+    FROM "Url"
+    WHERE "originalUrl" = $originalUrl
+    LIMIT 1;
+  `);
+
+  statement.bind({ $originalUrl: originalUrl });
+
+  const hasRow = statement.step();
+
+  if (!hasRow) {
+    statement.free();
+    return null;
+  }
+
+  const row = getRowFromStatement(statement);
+  statement.free();
+
+  return mapRow(row);
+};
+
+/**
+ * Increments the hit count for a given short code.
+ */
 const increment = async (code: string): Promise<boolean> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
@@ -286,6 +358,9 @@ const increment = async (code: string): Promise<boolean> => {
   return changes > 0;
 };
 
+/**
+ * Removes every Url record from the database.
+ */
 const clear = async (): Promise<void> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
@@ -294,12 +369,18 @@ const clear = async (): Promise<void> => {
   await persistDatabase(ctx);
 };
 
+/**
+ * Exposes the underlying sql.js Database for advanced consumers.
+ */
 const getConnection = async (): Promise<SqlJsDatabase> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
   return ctx.db;
 };
 
+/**
+ * Factory that produces the sqlite driver implementing the shared contract.
+ */
 export const createSqliteDriver = async (): Promise<DatabaseDriver> => {
   await ensure();
 
@@ -307,6 +388,7 @@ export const createSqliteDriver = async (): Promise<DatabaseDriver> => {
     ensure,
     insert,
     findByCode: find,
+    findByOriginalUrl,
     incrementHits: increment,
     clear,
     getConnection
