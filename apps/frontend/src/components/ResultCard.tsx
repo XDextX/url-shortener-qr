@@ -1,4 +1,4 @@
-import { ShortUrlResponse } from "../api/client";
+import { ShortUrlResponse } from "@api/client";
 
 interface Props {
   result: ShortUrlResponse | null;

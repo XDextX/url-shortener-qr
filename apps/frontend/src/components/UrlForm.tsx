@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { createShortUrl, ShortUrlResponse } from "../api/client";
+import { createShortUrl, ShortUrlResponse } from "@api/client";
 
 interface Props {
   onSuccess: (payload: ShortUrlResponse) => void;

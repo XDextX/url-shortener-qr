@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ShortUrlResponse } from "./api/client";
-import { UrlForm } from "./components/UrlForm";
-import { ResultCard } from "./components/ResultCard";
+import { ShortUrlResponse } from "@api/client";
+import { UrlForm } from "@components/UrlForm";
+import { ResultCard } from "@components/ResultCard";
 
 const App = () => {
   const [result, setResult] = useState<ShortUrlResponse | null>(null);
