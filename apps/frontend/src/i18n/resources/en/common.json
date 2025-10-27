@@ -1,0 +1,31 @@
+{
+  "app": {
+    "title": "URL Shortener + QR",
+    "description": "Enter a long URL and get a short link with its QR ready to download or share.",
+    "footer": "Built with React + Vite · Backend powered by Node.js",
+    "languageLabel": "Language",
+    "languages": {
+      "es": "Spanish",
+      "en": "English"
+    }
+  },
+  "form": {
+    "label": "Original URL",
+    "placeholder": "https://example.com",
+    "submit": "Generate short URL",
+    "loading": "Generating...",
+    "error": "Enter a valid URL"
+  },
+  "result": {
+    "title": "Your link is ready",
+    "shortUrl": "Short URL",
+    "qr": "QR code",
+    "copy": {
+      "action": "Copy URL",
+      "loading": "Copying...",
+      "success": "URL copied",
+      "error": "Error copying URL",
+      "errorHelper": "Automatic copy failed. Try copying it manually."
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "app": {
+    "title": "Acortador de URLs + QR",
+    "description": "Ingresa una URL larga y obtén un enlace corto con su QR listo para descargar o compartir.",
+    "footer": "Construido con React + Vite · Backend en Node.js",
+    "languageLabel": "Idioma",
+    "languages": {
+      "es": "Español",
+      "en": "Inglés"
+    }
+  },
+  "form": {
+    "label": "URL original",
+    "placeholder": "https://ejemplo.com",
+    "submit": "Generar short URL",
+    "loading": "Generando...",
+    "error": "Ingresa una URL válida"
+  },
+  "result": {
+    "title": "Tu enlace está listo",
+    "shortUrl": "URL corta",
+    "qr": "Código QR",
+    "copy": {
+      "action": "Copiar URL",
+      "loading": "Copiando...",
+      "success": "URL copiada",
+      "error": "Error al copiar",
+      "errorHelper": "No se pudo copiar automáticamente. Inténtalo manualmente."
+    }
+  }
+}

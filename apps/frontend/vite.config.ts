@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => {
         "@components": path.resolve(__dirname, "src/components")
       }
     },
+    test: {
+      environment: "jsdom",
+      globals: true,
+      setupFiles: path.resolve(__dirname, "src/tests/setup.ts")
+    },
     server: {
       port: Number(env.VITE_PORT) || 5173
     }

@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createShortUrl, ShortUrlResponse } from "@api/client";
 import { Button } from "@components/Button";
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export const UrlForm = ({ onSuccess }: Props) => {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
     event.preventDefault();
 
     if (!url.trim()) {
-      setError("Ingresa una URL válida");
+      setError(t("form.error"));
       return;
     }
 
@@ -26,7 +28,8 @@ export const UrlForm = ({ onSuccess }: Props) => {
       onSuccess(result);
       setUrl("");
     } catch (err) {
-      setError((err as Error).message);
+      const message = (err as Error).message?.trim();
+      setError(message && message.length > 0 ? message : t("form.error"));
     } finally {
       setLoading(false);
     }
@@ -35,19 +38,19 @@ export const UrlForm = ({ onSuccess }: Props) => {
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <label className="block text-sm font-semibold text-slate-700">
-        URL original
+        {t("form.label")}
         <input
           type="url"
           value={url}
           onChange={(event) => setUrl(event.target.value)}
-          placeholder="https://ejemplo.com"
+          placeholder={t("form.placeholder")}
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
           required
         />
       </label>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button type="submit" loading={loading} loadingText="Generando...">
-        Generar short URL
+      <Button type="submit" loading={loading} loadingText={t("form.loading")}>
+        {t("form.submit")}
       </Button>
     </form>
   );

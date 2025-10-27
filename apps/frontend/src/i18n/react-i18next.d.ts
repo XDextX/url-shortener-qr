@@ -1,0 +1,9 @@
+import "react-i18next";
+import type resources from "./resources";
+
+declare module "react-i18next" {
+  interface CustomTypeOptions {
+    resources: (typeof resources)["en"];
+    defaultNS: "common";
+  }
+}

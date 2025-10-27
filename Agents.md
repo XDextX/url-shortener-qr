@@ -54,3 +54,16 @@ Configura el nuevo driver con `DATABASE_DRIVER=postgres` y las credenciales nece
 - Documenta entradas y salidas relevantes, asi como comportamiento especial o efectos secundarios que impacten otros componentes.
 - Cuando agregues configuraciones o comandos nuevos, actualiza esta guia o la documentacion asociada para mantener el contexto.
 - Evita comentarios obvios; enfocate en explicar el 'por que' y los detalles que no sean evidentes de inmediato.
+
+## Pruebas por componente
+
+- Cada componente o unidad nueva debe ir acompaA�ada de su bateria de pruebas (unitarias o de integracion segun aplique).  
+- MantA�n las suites existentes actualizadas cuando cambies comportamientos.  
+- Si no puedes cubrir un caso con pruebas automatizadas, anota la razon y las verificaciones manuales realizadas.
+
+## Internacionalizacion (i18n)
+
+- El frontend usa `i18next` y `react-i18next` inicializados en `src/i18n/`. Usa `AppI18nProvider` para envolver cualquier nuevo arbol de componentes.
+- Registra nuevos textos en `src/i18n/resources/<lang>/common.json` y accede a ellos con `useTranslation`. Evita hardcodear strings visibles.
+- `LanguageSwitcher` ya gestiona el cambio de idioma; reutilizalo o crea variantes siguiendo el mismo patron.
+- Para pruebas, usa el helper `renderWithI18n` ubicado en `src/tests/render-with-i18n.tsx` y fija el idioma segun el escenario.
