@@ -17,12 +17,12 @@ export const LanguageSwitcher = () => {
   };
 
   return (
-    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+    <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
       <span>{t("app.languageLabel")}</span>
       <select
         value={current}
         onChange={handleChange}
-        className="rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        className="rounded-md border border-border bg-surface px-2 py-1 text-sm text-text-primary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
       >
         {LANGUAGE_ORDER.filter((code) => supportedLanguages.includes(code)).map((code) => (
           <option key={code} value={code}>

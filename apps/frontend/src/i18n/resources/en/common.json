@@ -2,11 +2,18 @@
   "app": {
     "title": "URL Shortener + QR",
     "description": "Enter a long URL and get a short link with its QR ready to download or share.",
-    "footer": "Built with React + Vite · Backend powered by Node.js",
+    "footer": "Built with React + Vite - Backend powered by Node.js",
     "languageLabel": "Language",
     "languages": {
       "es": "Spanish",
       "en": "English"
+    }
+  },
+  "theme": {
+    "label": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark"
     }
   },
   "form": {

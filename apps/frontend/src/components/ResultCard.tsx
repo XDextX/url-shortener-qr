@@ -53,17 +53,17 @@ export const ResultCard = ({ result }: Props) => {
   const copyLabel = getCopyLabel();
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-800">{t("result.title")}</h2>
-      <p className="mt-2 text-sm text-slate-600">{result.originalUrl}</p>
+    <div className="rounded-lg border border-border bg-surface p-6 shadow-sm transition-colors duration-200">
+      <h2 className="text-lg font-semibold text-text-primary">{t("result.title")}</h2>
+      <p className="mt-2 text-sm text-text-secondary">{result.originalUrl}</p>
 
       <div className="mt-4">
-        <span className="text-sm font-semibold text-slate-700">{t("result.shortUrl")}</span>
+        <span className="text-sm font-semibold text-text-primary">{t("result.shortUrl")}</span>
         <a
           href={result.shortUrl}
           target="_blank"
           rel="noreferrer"
-          className="mt-1 block text-indigo-600 hover:underline"
+          className="mt-1 block text-accent hover:text-accent-hover hover:underline"
         >
           {result.shortUrl}
         </a>
@@ -77,17 +77,17 @@ export const ResultCard = ({ result }: Props) => {
           {copyLabel}
         </Button>
         {copyState === "error" ? (
-          <p className="mt-1 text-xs text-red-600">{t("result.copy.errorHelper")}</p>
+          <p className="mt-1 text-xs text-accent">{t("result.copy.errorHelper")}</p>
         ) : null}
       </div>
 
       <div className="mt-6">
-        <span className="text-sm font-semibold text-slate-700">{t("result.qr")}</span>
+        <span className="text-sm font-semibold text-text-primary">{t("result.qr")}</span>
         <div className="mt-2 flex justify-center">
           <img
             src={result.qrCodeDataUrl}
             alt={t("result.qr")}
-            className="h-48 w-48 rounded-md border border-slate-200 bg-white p-2"
+            className="h-48 w-48 rounded-md border border-border bg-surface p-2"
           />
         </div>
       </div>

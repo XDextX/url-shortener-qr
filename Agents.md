@@ -63,7 +63,14 @@ Configura el nuevo driver con `DATABASE_DRIVER=postgres` y las credenciales nece
 
 ## Internacionalizacion (i18n)
 
-- El frontend usa `i18next` y `react-i18next` inicializados en `src/i18n/`. Usa `AppI18nProvider` para envolver cualquier nuevo arbol de componentes.
-- Registra nuevos textos en `src/i18n/resources/<lang>/common.json` y accede a ellos con `useTranslation`. Evita hardcodear strings visibles.
-- `LanguageSwitcher` ya gestiona el cambio de idioma; reutilizalo o crea variantes siguiendo el mismo patron.
+- El frontend usa `i18next` y `react-i18next` inicializados en `src/i18n/`. Usa `AppI18nProvider` para envolver cualquier nuevo arbol de componentes.  
+- Registra nuevos textos en `src/i18n/resources/<lang>/common.json` y accede a ellos con `useTranslation`. Evita hardcodear strings visibles.  
+- `LanguageSwitcher` ya gestiona el cambio de idioma; reutilizalo o crea variantes siguiendo el mismo patron.  
 - Para pruebas, usa el helper `renderWithI18n` ubicado en `src/tests/render-with-i18n.tsx` y fija el idioma segun el escenario.
+
+## Temas (Theme)
+
+- El manejo de temas vive en `src/theme/`. Usa `ThemeProvider` (ver `src/main.tsx`) para exponer el contexto y `useTheme` para leer o cambiar el tema.  
+- Los temas disponibles estan definidos en `src/theme/themes.ts` y usan variables CSS (`--color-*`). Ajusta esos valores para nuevos esquemas.  
+- El selector `ThemeSwitcher` ya guarda la preferencia en `localStorage` y respeta `prefers-color-scheme`; reutiliza ese patron para otros controles.  
+- Las clases de Tailwind usan colores basados en variables (`bg-background`, `text-text-primary`, etc.). Evita hardcodear colores y agrega nuevos tokens en `tailwind.config.js` si es necesario.

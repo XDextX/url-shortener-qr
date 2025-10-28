@@ -4,26 +4,30 @@ import { ShortUrlResponse } from "@api/client";
 import { UrlForm } from "@components/UrlForm";
 import { ResultCard } from "@components/ResultCard";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
+import { ThemeSwitcher } from "@components/ThemeSwitcher";
 
 const App = () => {
   const { t } = useTranslation();
   const [result, setResult] = useState<ShortUrlResponse | null>(null);
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="bg-white shadow">
+    <div className="min-h-screen bg-background text-text-primary transition-colors duration-200">
+      <header className="bg-surface shadow transition-colors duration-200">
         <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">{t("app.title")}</h1>
-            <p className="mt-2 text-sm text-slate-600">{t("app.description")}</p>
+            <h1 className="text-2xl font-bold text-text-primary">{t("app.title")}</h1>
+            <p className="mt-2 text-sm text-text-secondary">{t("app.description")}</p>
           </div>
 
-          <LanguageSwitcher />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-10">
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-surface p-6 shadow-sm transition-colors duration-200">
           <UrlForm onSuccess={setResult} />
         </div>
 
@@ -32,7 +36,9 @@ const App = () => {
         </div>
       </main>
 
-      <footer className="pb-6 text-center text-xs text-slate-500">{t("app.footer")}</footer>
+      <footer className="pb-6 text-center text-xs text-text-secondary transition-colors duration-200">
+        {t("app.footer")}
+      </footer>
     </div>
   );
 };

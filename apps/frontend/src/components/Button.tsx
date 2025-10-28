@@ -8,7 +8,7 @@ type ButtonProps = PropsWithChildren<
 >;
 
 const BASE_BUTTON_CLASS =
-  "flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white shadow transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300";
+  "flex items-center justify-center rounded-md bg-accent px-4 py-2 font-medium text-accent-contrast shadow transition-colors hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:bg-accent-muted disabled:text-accent-contrast";
 
 /**
  * Reusable button component that handles loading states and shared styling.

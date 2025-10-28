@@ -64,6 +64,7 @@ describe("ResultCard", () => {
 
     await user.click(copyButton);
 
+    await waitFor(() => expect(clipboardMock.writeText).toHaveBeenCalledWith(sampleResult.shortUrl));
     await waitFor(() => expect(copyButton).toHaveTextContent(/url copied/i));
     expect(screen.queryByText(/automatic copy failed/i)).not.toBeInTheDocument();
   });
