@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "apps/backend/vercel.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "apps/backend/vercel.ts"
+    },
+    {
+      "src": "/health",
+      "dest": "apps/backend/vercel.ts"
+    },
+    {
+      "src": "/([^./]{1,64})",
+      "dest": "apps/backend/vercel.ts"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "apps/frontend/dist/index.html"
+    }
+  ]
+}

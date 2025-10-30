@@ -41,6 +41,24 @@ La primera vez que inicies el backend con SQLite local, `ensureDatabase()` crear
 - `npm run lint`: ESLint sobre el monorepo.
 - `npm run test`: tests del backend (Vitest + Supertest).
 
+## Despliegue en Vercel
+
+El repositorio incluye una configuracion de monorepo en `vercel.json` que construye el frontend con `@vercel/static-build` y expone el backend Express como funcion serverless (`apps/backend/vercel.ts`). Las rutas se resuelven asi:
+
+- `/api/*` y `/health` van directo al backend.
+- Cualquier segmento sin `.` (`https://dominio/abc123`) se redirige al backend para resolver short codes.
+- Rutas restantes sirven los artefactos del frontend (SPA con fallback a `index.html`).
+
+Pasos sugeridos:
+
+1. Conecta el repositorio en Vercel y selecciona la raiz (`url-shortener-qr/`).
+2. Define variables de entorno:
+   - Backend: `BASE_URL` y `FRONTEND_URL` apuntando a tu dominio publico (ej. `https://tu-app.vercel.app`). Ajusta `DATABASE_URL` para usar una base remota, ya que las funciones serverless no persisten en disco.
+   - Frontend: `VITE_API_BASE_URL` con la misma URL publica del backend.
+3. Ejecuta `vercel --prod` (o usa el dashboard) para desplegar.
+
+Si prefieres dominios separados (ej. `app.` para el frontend y la raiz para los codigos), configura los dominios personalizados en Vercel y actualiza `BASE_URL`, `FRONTEND_URL` y `VITE_API_BASE_URL` en consecuencia.
+
 ## Base de datos
 
 El paquete `@url-shortener/database` expone:
