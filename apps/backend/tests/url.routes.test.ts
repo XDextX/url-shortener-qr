@@ -3,6 +3,8 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import createApp from "../src/app.js";
 import { clearStore } from "../src/repositories/url.repository.js";
 
+process.env.FRONTEND_URL = "https://frontend.example";
+
 const app = createApp();
 
 beforeEach(async () => {
@@ -53,5 +55,9 @@ describe("URL routes", () => {
     const code = createResponse.body.code as string;
 
     await request(app).get(`/${code}`).expect(302).expect("Location", "https://example.com/redirect");
+  });
+
+  it("GET / redirige al frontend configurado", async () => {
+    await request(app).get("/").expect(302).expect("Location", "https://frontend.example");
   });
 });

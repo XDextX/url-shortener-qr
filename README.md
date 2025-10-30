@@ -21,7 +21,7 @@ npm install
 
 ### Variables de entorno
 
-- Backend: `cp apps/backend/.env.example apps/backend/.env` y ajusta `PORT`, `BASE_URL` y `DATABASE_URL` si apuntas a otra ruta de base de datos.
+- Backend: `cp apps/backend/.env.example apps/backend/.env` y ajusta `PORT`, `BASE_URL`, `FRONTEND_URL` y `DATABASE_URL` si apuntas a otra ruta de base de datos. La raiz del backend (`GET /`) redirige a `FRONTEND_URL`.
 - Frontend: `cp apps/frontend/.env.example apps/frontend/.env` y define `VITE_API_BASE_URL`.
 - Base de datos: `cp packages/database/.env.example packages/database/.env`. Puedes definir `DATABASE_DRIVER` (por defecto `sqlite`) y `DATABASE_URL` en funcion del driver elegido.
 
