@@ -12,6 +12,7 @@
     "dev:backend": "npm --workspace @url-shortener/backend run dev",
     "dev:frontend": "npm --workspace url-shortener-qr-frontend run dev",
     "build": "npm-run-all build:database build:backend build:frontend",
+    "postbuild": "node scripts/copy-frontend-dist.mjs",
     "build:database": "npm --workspace @url-shortener/database run build",
     "build:backend": "npm --workspace @url-shortener/backend run build",
     "build:frontend": "npm --workspace url-shortener-qr-frontend run build",
