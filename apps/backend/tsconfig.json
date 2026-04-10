@@ -12,7 +12,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "vercel.ts"
   ],
   "exclude": [
     "node_modules",

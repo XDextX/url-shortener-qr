@@ -1,0 +1,41 @@
+# Control de versiones
+.git
+.gitignore
+
+# Dependencias - no necesarias en Vercel (se instalan en build)
+node_modules/
+apps/*/node_modules/
+packages/*/node_modules/
+
+# Código fuente - ya compilado en build
+apps/backend/src/
+apps/backend/tests/
+apps/frontend/src/
+packages/*/src/
+
+# Build artifacts locales
+apps/frontend/dist/
+apps/backend/dist/
+
+# Archivos de desarrollo y configuración
+.env.local
+.env.*.local
+.DS_Store
+.vscode/
+.idea/
+
+# Documentación y otros
+README.md
+docs/
+.vercelignore
+.gitignore
+vitest.config.ts
+vite.config.ts
+tsconfig.json
+eslintignore
+.eslintrc.cjs
+
+# Cache
+.turbo/
+.cache/
+*.log
