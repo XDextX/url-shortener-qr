@@ -371,24 +371,77 @@ El servidor sirve:
 
 ### Deploy en Vercel
 
-1. **Conectar GitHub a Vercel:**
-   ```bash
-   npm i -g vercel
-   vercel
-   ```
+**⚠️ IMPORTANTE:** Vercel usa almacenamiento efímero, por lo que SQLite NO persiste entre requests. Se requiere una base de datos remota.
 
-2. **Configurar en Vercel Dashboard:**
-   - `BASE_URL`: Tu dominio Vercel (ej: `https://mi-app.vercel.app`)
-   - `FRONTEND_URL`: Mismo dominio
-   - `DATABASE_URL`: Para persistencia, usa `/tmp/prod.db` o una BD remota
-   - `VITE_API_BASE_URL`: URL pública del API
+#### 1. Preparar Base de Datos (PostgreSQL)
 
-3. **Auto-deploy:** Cada push a `main` se deploya automáticamente
+Crea una BD PostgreSQL gratuita en:
+- **[Neon](https://neon.tech/)** (Recomendado - free tier: 3GB)
+- **[Supabase](https://supabase.com/)** (free tier: 500MB)
+
+Copia la connection string (ej: `postgresql://user:pass@host/dbname`)
+
+#### 2. Conectar GitHub a Vercel
+
+```bash
+npm i -g vercel
+vercel link                # Conecta tu repo a Vercel
+```
+
+#### 3. Configurar Variables de Entorno en Vercel Dashboard
+
+**Settings → Environment Variables:**
+
+```
+PORT=3000
+BASE_URL=https://tu-app.vercel.app
+FRONTEND_URL=https://tu-app.vercel.app
+VITE_API_BASE_URL=https://tu-app.vercel.app
+DATABASE_URL=postgresql://user:pass@host/dbname
+DATABASE_DRIVER=postgres
+```
+
+**Nota:** Reemplaza `tu-app.vercel.app` con tu dominio real en Vercel
+
+#### 4. Deploy Automático
+
+Cada push a `main` se deploya automáticamente:
+
+```bash
+git push origin main
+# Vercel automáticamente:
+# - Instala deps
+# - Corre npm run build
+# - Compila vercel.ts
+# - Deploya
+```
+
+#### 5. Verificar Deploy
+
+```bash
+# Health check
+curl https://tu-app.vercel.app/health
+# {"status":"ok"}
+
+# Test crear short URL
+curl -X POST https://tu-app.vercel.app/api/v1/urls \
+  -H "Content-Type: application/json" \
+  -d '{"originalUrl":"https://example.com"}'
+```
 
 **Estructura en Vercel:**
-- `/` → Frontend
-- `/api/*` → API
+- `/` → Frontend (SPA)
+- `/api/*` → API REST
 - `/:code` → Redirige a URL original
+
+---
+
+**Troubleshooting Deploy:**
+- Si falla: Revisa logs en Vercel Dashboard → Deployments
+- Si BASE_URL es incorrecto: URLs generadas apuntarán a host inválido
+- Si DATABASE_URL falta: App fallará al iniciar
+- Si DATABASE_DRIVER es "sqlite": URLs se pierden entre requests
+
 
 ---
 
