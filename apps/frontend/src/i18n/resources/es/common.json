@@ -21,7 +21,12 @@
     "placeholder": "https://ejemplo.com",
     "submit": "Generar short URL",
     "loading": "Generando...",
-    "error": "Ingresa una URL valida"
+    "error": "URL inválida",
+    "error.empty": "Ingresa una URL",
+    "error.invalid": "URL no válida. Verifica el formato.",
+    "error.protocol": "Solo se aceptan URLs HTTP/HTTPS",
+    "error.tooLong": "URL demasiado larga (máximo 2048 caracteres)",
+    "error.server": "Error al procesar tu URL. Intenta de nuevo."
   },
   "result": {
     "title": "Tu enlace esta listo",

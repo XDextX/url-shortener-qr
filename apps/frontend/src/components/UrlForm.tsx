@@ -7,6 +7,38 @@ interface Props {
   onSuccess: (payload: ShortUrlResponse) => void;
 }
 
+/**
+ * Valida que una URL esté en formato correcto.
+ * @returns Error message if invalid, null if valid
+ */
+const validateUrl = (url: string, t: any): string | null => {
+  const trimmed = url.trim();
+
+  // Check if empty
+  if (!trimmed) {
+    return t("form.error.empty");
+  }
+
+  // Check length
+  if (trimmed.length > 2048) {
+    return t("form.error.tooLong");
+  }
+
+  // Check format
+  try {
+    const urlObj = new URL(trimmed);
+
+    // Only HTTP/HTTPS
+    if (!["http:", "https:"].includes(urlObj.protocol)) {
+      return t("form.error.protocol");
+    }
+
+    return null; // Valid
+  } catch {
+    return t("form.error.invalid");
+  }
+};
+
 export const UrlForm = ({ onSuccess }: Props) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState("");
@@ -16,8 +48,10 @@ export const UrlForm = ({ onSuccess }: Props) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!url.trim()) {
-      setError(t("form.error"));
+    // Validate on client side
+    const validationError = validateUrl(url, t);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -29,7 +63,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
       setUrl("");
     } catch (err) {
       const message = (err as Error).message?.trim();
-      setError(message && message.length > 0 ? message : t("form.error"));
+      setError(message && message.length > 0 ? message : t("form.error.server"));
     } finally {
       setLoading(false);
     }

@@ -8,7 +8,15 @@ export const createApp = (): Application => {
   const app = express();
   const { frontendUrl } = loadEnvConfig();
 
-  app.use(cors());
+  // Configure CORS to only allow requests from the configured frontend URL
+  const corsOptions = {
+    origin: frontendUrl,
+    credentials: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"]
+  };
+  app.use(cors(corsOptions));
+
   app.use(express.json());
   app.use("/api/v1/urls", urlRoutes);
 

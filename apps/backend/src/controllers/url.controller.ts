@@ -1,19 +1,17 @@
 import { Request, Response } from "express";
 import { createShortUrl, findOriginalUrl, resolveOriginalUrl } from "../services/url.service.js";
+import { validateUrl } from "../utils/url-validator.js";
 
 export const createShortUrlHandler = async (req: Request, res: Response): Promise<void> => {
   const { originalUrl } = req.body as { originalUrl?: string };
 
-  if (!originalUrl) {
-    res.status(400).json({ message: "originalUrl es requerido" });
-    return;
-  }
-
   try {
+    validateUrl(originalUrl);
     const payload = await createShortUrl(originalUrl);
     res.status(201).json(payload);
   } catch (error) {
-    res.status(500).json({ message: "No fue posible crear el short URL", error: (error as Error).message });
+    const message = (error as Error).message;
+    res.status(400).json({ message });
   }
 };
 
