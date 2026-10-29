@@ -1,6 +1,6 @@
 import type { DatabaseDriver, InsertUrlInput, UrlRecord } from "./contracts.js";
 import { createSqliteDriver } from "./sqlite-driver.js";
-import { createPostgresDriver } from "./postgres-driver.js";
+import { createPrismaDriver } from "./prisma-driver.js";
 
 type DriverFactory = () => Promise<DatabaseDriver>;
 
@@ -51,7 +51,7 @@ const resolveDriver = async (): Promise<DatabaseDriver> => {
 };
 
 registerDatabaseDriver("sqlite", createSqliteDriver);
-registerDatabaseDriver("postgres", createPostgresDriver);
+registerDatabaseDriver("postgres", createPrismaDriver);
 
 /**
  * Ensures the database schema is ready.
