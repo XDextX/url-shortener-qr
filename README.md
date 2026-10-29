@@ -646,7 +646,7 @@ Por favor:
 ## 📞 Soporte
 
 - **Issues**: Abre un [issue en GitHub](https://github.com/xdextx/url-shortener-qr/issues)
-- **Email**: germonramirez@gmail.com
+- **Email**: germonram@gmail.com
 
 ---
 
