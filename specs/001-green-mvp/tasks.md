@@ -7,7 +7,7 @@
   `apps/backend/src/utils/url-validator.ts`
   Done when: `npm run build` exits 0.
 
-- [ ] **T-2 — Stub the clipboard after `userEvent.setup()`**
+- [x] **T-2 — Stub the clipboard after `userEvent.setup()`**
   Covers: RF-3
   Files: `apps/frontend/src/components/ResultCard.test.tsx`
   Done when: the frontend suite passes, 6/6.

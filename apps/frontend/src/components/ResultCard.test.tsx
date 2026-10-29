@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ShortUrlResponse } from "@api/client";
 import { renderWithI18n } from "@/tests/render-with-i18n";
 import { ResultCard } from "./ResultCard";
@@ -14,42 +14,6 @@ const sampleResult: ShortUrlResponse = {
 };
 
 describe("ResultCard", () => {
-  let clipboardMock: { writeText: ReturnType<typeof vi.fn> };
-  const originalClipboard = navigator.clipboard;
-  const originalNavigator = navigator;
-
-  beforeEach(() => {
-    clipboardMock = {
-      writeText: vi.fn(async () => {})
-    };
-
-    Object.defineProperty(window.navigator, "clipboard", {
-      value: clipboardMock,
-      configurable: true
-    });
-    Object.defineProperty(globalThis, "navigator", {
-      value: window.navigator,
-      configurable: true
-    });
-  });
-
-  afterEach(() => {
-    if (originalClipboard) {
-      Object.defineProperty(window.navigator, "clipboard", {
-        value: originalClipboard,
-        configurable: true
-      });
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (navigator as any).clipboard;
-    }
-
-    Object.defineProperty(globalThis, "navigator", {
-      value: originalNavigator,
-      configurable: true
-    });
-  });
-
   it("renders nothing when there is no result", () => {
     const { container } = renderWithI18n(<ResultCard result={null} />);
     expect(container.firstChild).toBeNull();
@@ -57,6 +21,8 @@ describe("ResultCard", () => {
 
   it("copies the short URL to the clipboard", async () => {
     const user = userEvent.setup();
+    // setup() installs its own navigator.clipboard, so spy after it, not before.
+    const writeText = vi.spyOn(navigator.clipboard, "writeText");
 
     renderWithI18n(<ResultCard result={sampleResult} />);
 
@@ -64,7 +30,7 @@ describe("ResultCard", () => {
 
     await user.click(copyButton);
 
-    await waitFor(() => expect(clipboardMock.writeText).toHaveBeenCalledWith(sampleResult.shortUrl));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(sampleResult.shortUrl));
     await waitFor(() => expect(copyButton).toHaveTextContent(/url copied/i));
     expect(screen.queryByText(/automatic copy failed/i)).not.toBeInTheDocument();
   });
