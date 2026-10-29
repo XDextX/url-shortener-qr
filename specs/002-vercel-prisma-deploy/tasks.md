@@ -32,7 +32,7 @@
   Done when: the failing-store test gets 500 with only `message`, and the
   blanket-400 injection turns it red.
 
-- [ ] **T-5 — Public origin and API origin**
+- [x] **T-5 — Public origin and API origin**
   Covers: RF-1, RF-2
   Files: `apps/backend/src/config/env.ts`, `apps/backend/tests/env.test.ts`,
   `apps/frontend/src/api/client.ts`, `apps/frontend/src/api/client.test.ts`

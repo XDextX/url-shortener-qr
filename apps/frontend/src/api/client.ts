@@ -7,9 +7,18 @@ export interface ShortUrlResponse {
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
-const getBaseApiUrl = (): string => {
-  return import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE_URL;
-};
+/**
+ * Decides the origin the API is called on.
+ * @param env - `VITE_API_BASE_URL` and whether this is a production build
+ * @param origin - the page's own origin
+ * @returns the variable, else the page's origin in production (same-origin on Vercel), else localhost
+ */
+export const resolveApiBaseUrl = (
+  env: { VITE_API_BASE_URL?: string; PROD: boolean },
+  origin: string
+): string => env.VITE_API_BASE_URL || (env.PROD ? origin : DEFAULT_BASE_URL);
+
+const getBaseApiUrl = (): string => resolveApiBaseUrl(import.meta.env, window.location.origin);
 
 export const createShortUrl = async (originalUrl: string): Promise<ShortUrlResponse> => {
   const response = await fetch(`${getBaseApiUrl()}/api/v1/urls`, {
