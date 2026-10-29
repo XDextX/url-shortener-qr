@@ -85,6 +85,8 @@ call. Visitor-facing text goes through i18n in both locales.
 - **Never write paths with the real user name, emails, tokens, keys or passwords** into any repo
   document or commit message. Use placeholders: `C:\Users\<user>\...`, `<token>`.
 - `.env` is gitignored; flag a secret's existence, never its value.
+- **One exception: the owner's public contact email, in `README.md` only**, the same address
+  across the owner's repos. Anywhere else, a commit message included, it is still an email.
 
 ### Agent tooling
 
