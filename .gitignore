@@ -36,3 +36,12 @@ apps/frontend/coverage/
 packages/database/data/dev.db-journal
 
 .github/
+# Agent tooling: per machine, junctions made by .agents/link.ps1. Never tracked.
+.agents/
+.claude/
+.opencode/
+opencode.json
+opencode.jsonc
+skills-lock.json
+Memory.md
+bloque/
