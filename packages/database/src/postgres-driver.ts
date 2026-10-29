@@ -158,7 +158,7 @@ const increment = async (code: string): Promise<boolean> => {
     [now, code]
   );
 
-  return result.rowCount ?? 0 > 0;
+  return (result.rowCount ?? 0) > 0;
 };
 
 /**

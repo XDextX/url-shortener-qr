@@ -1,0 +1,21 @@
+# Tasks 001 — Green MVP
+
+- [x] **T-1 — Declare the PostgreSQL client in the database package**
+  Covers: RF-1
+  Files: `packages/database/package.json`, `package-lock.json`,
+  `packages/database/src/postgres-driver.ts`, `apps/backend/tsconfig.json`,
+  `apps/backend/src/utils/url-validator.ts`
+  Done when: `npm run build` exits 0.
+
+- [x] **T-2 — Stub the clipboard after `userEvent.setup()`**
+  Covers: RF-3
+  Files: `apps/frontend/src/components/ResultCard.test.tsx`
+  Done when: the frontend suite passes, 6/6.
+
+- [x] **T-3 — Run every workspace suite from the root `npm test`**
+  Covers: RF-2
+  Files: `package.json`
+  Done when: root `npm test` lists backend and frontend files, and an injected
+  frontend failure turns it red.
+
+  Last, because before T-2 the frontend suite is red and the gate would fail.
