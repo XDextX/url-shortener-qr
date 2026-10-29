@@ -2,6 +2,7 @@
   "name": "url-shortener-qr-monorepo",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "workspaces": [
     "apps/backend",
     "apps/frontend",
@@ -17,7 +18,8 @@
     "build:backend": "npm --workspace @url-shortener/backend run build",
     "build:frontend": "npm --workspace url-shortener-qr-frontend run build",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "db:deploy": "npm --workspace @url-shortener/database run db:deploy"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.2.0",

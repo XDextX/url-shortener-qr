@@ -38,7 +38,7 @@
   `apps/frontend/src/api/client.ts`, `apps/frontend/src/api/client.test.ts`
   Done when: both resolver tests pass and the precedence injection turns each red.
 
-- [ ] **T-6 — Vercel configuration**
+- [x] **T-6 — Vercel configuration**
   Covers: RF-1, RF-3
   Files: `vercel.json`, `api/index.ts`, `apps/backend/vercel.ts` (delete),
   `.vercelignore` (delete), `package.json`, `README.md`
