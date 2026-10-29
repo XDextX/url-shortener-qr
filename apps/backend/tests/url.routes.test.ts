@@ -1,4 +1,9 @@
 import request from "supertest";
+import {
+  getActiveDatabaseDriverName,
+  registerDatabaseDriver,
+  setDatabaseDriver
+} from "@url-shortener/database";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import createApp from "../src/app.js";
 import { clearStore } from "../src/repositories/url.repository.js";
@@ -59,5 +64,44 @@ describe("URL routes", () => {
 
   it("GET / redirige al frontend configurado", async () => {
     await request(app).get("/").expect(302).expect("Location", "https://frontend.example");
+  });
+});
+
+describe("URL creation errors (spec 002, RF-8)", () => {
+  it("POST /api/v1/urls answers 500 with only a message when the store fails", async () => {
+    const unreachable = async (): Promise<never> => {
+      throw new Error("connect ECONNREFUSED internal-host:5432");
+    };
+    registerDatabaseDriver("unreachable", async () => ({
+      ensure: unreachable,
+      insert: unreachable,
+      findByCode: unreachable,
+      findByOriginalUrl: unreachable,
+      incrementHits: unreachable,
+      clear: unreachable
+    }));
+    const previous = getActiveDatabaseDriverName();
+    setDatabaseDriver("unreachable");
+
+    try {
+      const response = await request(app)
+        .post("/api/v1/urls")
+        .send({ originalUrl: "https://example.com/down" })
+        .expect(500);
+
+      expect(Object.keys(response.body)).toEqual(["message"]);
+      expect(response.body.message).not.toContain("ECONNREFUSED");
+    } finally {
+      setDatabaseDriver(previous);
+    }
+  });
+
+  it("POST /api/v1/urls still answers 400 for an invalid URL", async () => {
+    const response = await request(app)
+      .post("/api/v1/urls")
+      .send({ originalUrl: "ftp://example.com" })
+      .expect(400);
+
+    expect(response.body.message).toBeTruthy();
   });
 });

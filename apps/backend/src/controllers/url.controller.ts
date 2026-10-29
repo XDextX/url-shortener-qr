@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createShortUrl, findOriginalUrl, resolveOriginalUrl } from "../services/url.service.js";
-import { validateUrl } from "../utils/url-validator.js";
+import { InvalidUrlError, validateUrl } from "../utils/url-validator.js";
 
 export const createShortUrlHandler = async (req: Request, res: Response): Promise<void> => {
   const { originalUrl } = req.body as { originalUrl?: string };
@@ -10,8 +10,13 @@ export const createShortUrlHandler = async (req: Request, res: Response): Promis
     const payload = await createShortUrl(originalUrl);
     res.status(201).json(payload);
   } catch (error) {
-    const message = (error as Error).message;
-    res.status(400).json({ message });
+    if (error instanceof InvalidUrlError) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+    // A store failure: the internal error text stays in the server log, never in the response.
+    console.error(error);
+    res.status(500).json({ message: "No fue posible crear la URL" });
   }
 };
 

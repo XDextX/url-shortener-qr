@@ -25,7 +25,7 @@
   Prisma with `TEST_DATABASE_URL` set to a Neon development branch; the `pg`
   import guard was seen red.
 
-- [ ] **T-4 — Store errors answer 500, invalid input 400**
+- [x] **T-4 — Store errors answer 500, invalid input 400**
   Covers: RF-8
   Files: `apps/backend/src/controllers/url.controller.ts`,
   `apps/backend/src/utils/url-validator.ts`, `apps/backend/tests/url.routes.test.ts`
