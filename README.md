@@ -369,79 +369,62 @@ El servidor sirve:
 - `/api/*` → API del backend
 - `/*` → Frontend (SPA)
 
-### Deploy en Vercel
+### Deploy on Vercel
 
-**⚠️ IMPORTANTE:** Vercel usa almacenamiento efímero, por lo que SQLite NO persiste entre requests. Se requiere una base de datos remota.
+The whole app runs on one Vercel project: the frontend is served as static
+files from `dist/`, and `api/index.ts` runs the Express backend as a function.
+Links are stored in Postgres (Neon) through Prisma; SQLite stays for local
+development and tests. Spec 002 holds the decisions.
 
-#### 1. Preparar Base de Datos (PostgreSQL)
+#### 1. Create the project
 
-Crea una BD PostgreSQL gratuita en:
-- **[Neon](https://neon.tech/)** (Recomendado - free tier: 3GB)
-- **[Supabase](https://supabase.com/)** (free tier: 500MB)
+1. In Vercel, **Add New → Project** and import this repository. Leave the
+   framework preset as **Other**: `vercel.json` sets the build command and the
+   output directory.
+2. In the project, **Storage → Neon → Create**, and connect it to every
+   environment. Neon adds `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED`
+   (direct, used by migrations).
 
-Copia la connection string (ej: `postgresql://user:pass@host/dbname`)
+#### 2. Environment variables
 
-#### 2. Conectar GitHub a Vercel
-
-```bash
-npm i -g vercel
-vercel link                # Conecta tu repo a Vercel
-```
-
-#### 3. Configurar Variables de Entorno en Vercel Dashboard
-
-**Settings → Environment Variables:**
+In **Settings → Environment Variables**, add:
 
 ```
-PORT=3000
-BASE_URL=https://tu-app.vercel.app
-FRONTEND_URL=https://tu-app.vercel.app
-VITE_API_BASE_URL=https://tu-app.vercel.app
-DATABASE_URL=postgresql://user:pass@host/dbname
 DATABASE_DRIVER=postgres
 ```
 
-**Nota:** Reemplaza `tu-app.vercel.app` con tu dominio real en Vercel
+Nothing else is required. Short links are built on `BASE_URL` if set, else on
+the production domain Vercel exposes as `VERCEL_PROJECT_PRODUCTION_URL`. In a
+production build the frontend calls the API on its own origin, so
+`VITE_API_BASE_URL` is only for an API hosted elsewhere.
 
-#### 4. Deploy Automático
+Preview deployments share the production database.
 
-Cada push a `main` se deploya automáticamente:
+#### 3. Deploy
+
+Every push to `main` deploys. The build runs `npm run build` and then
+`npm run db:deploy` (`prisma migrate deploy`), so a failed migration fails the
+deploy before it reaches visitors. The schema changes only through
+`packages/database/prisma/migrations`.
+
+#### 4. Check it
 
 ```bash
-git push origin main
-# Vercel automáticamente:
-# - Instala deps
-# - Corre npm run build
-# - Compila vercel.ts
-# - Deploya
-```
-
-#### 5. Verificar Deploy
-
-```bash
-# Health check
-curl https://tu-app.vercel.app/health
-# {"status":"ok"}
-
-# Test crear short URL
-curl -X POST https://tu-app.vercel.app/api/v1/urls \
+curl https://<your-app>.vercel.app/health
+curl -X POST https://<your-app>.vercel.app/api/v1/urls \
   -H "Content-Type: application/json" \
   -d '{"originalUrl":"https://example.com"}'
 ```
 
-**Estructura en Vercel:**
-- `/` → Frontend (SPA)
-- `/api/*` → API REST
-- `/:code` → Redirige a URL original
+The second call answers 201 with a `shortUrl` on the production domain; opening
+it redirects (302) to the original URL.
 
----
+**Routes:** `/` and the static assets are the frontend; `/api/*` and `/health`
+are the API; `/<code>` redirects to the original URL.
 
-**Troubleshooting Deploy:**
-- Si falla: Revisa logs en Vercel Dashboard → Deployments
-- Si BASE_URL es incorrecto: URLs generadas apuntarán a host inválido
-- Si DATABASE_URL falta: App fallará al iniciar
-- Si DATABASE_DRIVER es "sqlite": URLs se pierden entre requests
-
+**If something fails:** read the deployment's build and function logs in
+Vercel. A store failure answers 500 with a `message` field; the cause is in the
+function log, never in the response.
 
 ---
 

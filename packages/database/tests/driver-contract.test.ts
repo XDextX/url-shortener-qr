@@ -1,0 +1,84 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import type { DatabaseDriver } from "../src/contracts.js";
+
+// Set before the SQLite driver loads: it falls back to the tracked dev.db otherwise.
+process.env.DATABASE_URL = ":memory:";
+
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
+
+/**
+ * The behaviour every DatabaseDriver must share, run against one driver.
+ * @param name - label shown in the test report
+ * @param create - builds the driver under test
+ */
+const contract = (name: string, create: () => Promise<DatabaseDriver>, skip = false): void => {
+  describe.skipIf(skip)(`${name} driver contract`, () => {
+    let driver: DatabaseDriver;
+
+    beforeAll(async () => {
+      driver = await create();
+      await driver.ensure();
+    });
+
+    beforeEach(async () => {
+      await driver.clear();
+    });
+
+    afterAll(async () => {
+      await driver?.clear();
+    });
+
+    it("inserts a record with no hits", async () => {
+      const record = await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+
+      expect(record).toMatchObject({
+        code: "abc12345",
+        originalUrl: "https://example.com/a",
+        qrSvg: null,
+        hits: 0
+      });
+      expect(record.createdAt).toBeInstanceOf(Date);
+    });
+
+    it("finds a record by code, and null for an unknown code", async () => {
+      await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+
+      expect((await driver.findByCode("abc12345"))?.originalUrl).toBe("https://example.com/a");
+      expect(await driver.findByCode("missing0")).toBeNull();
+    });
+
+    it("finds a record by original URL, and null for an unknown one", async () => {
+      await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+
+      expect((await driver.findByOriginalUrl("https://example.com/a"))?.code).toBe("abc12345");
+      expect(await driver.findByOriginalUrl("https://example.com/none")).toBeNull();
+    });
+
+    it("increments hits on a known code", async () => {
+      await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+
+      expect(await driver.incrementHits("abc12345")).toBe(true);
+      expect((await driver.findByCode("abc12345"))?.hits).toBe(1);
+    });
+
+    it("reports false when incrementing an unknown code", async () => {
+      expect(await driver.incrementHits("missing0")).toBe(false);
+    });
+
+    it("clears every record", async () => {
+      await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+      await driver.clear();
+
+      expect(await driver.findByCode("abc12345")).toBeNull();
+    });
+  });
+};
+
+contract("sqlite", async () => (await import("../src/sqlite-driver.js")).createSqliteDriver());
+
+// Runs only against a real Postgres (a Neon development branch); skipped, never passed, without one.
+contract(
+  "prisma",
+  async () => (await import("../src/prisma-driver.js")).createPrismaDriver(TEST_DATABASE_URL),
+  !TEST_DATABASE_URL
+);
