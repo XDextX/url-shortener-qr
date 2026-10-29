@@ -10,7 +10,7 @@ const MAX_URL_LENGTH = 2048;
  * @param url - URL a validar
  * @throws Error si la URL no es válida
  */
-export const validateUrl = (url: string): void => {
+export function validateUrl(url: string | undefined): asserts url is string {
   // 1. No vacío
   if (!url?.trim()) {
     throw new Error("URL no puede estar vacío");
@@ -37,4 +37,4 @@ export const validateUrl = (url: string): void => {
     // Si es error de URL() constructor, significa formato inválido
     throw new Error("URL inválida. Verifica el formato.");
   }
-};
+}

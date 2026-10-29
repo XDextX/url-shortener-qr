@@ -9,6 +9,13 @@
 - `packages/database/package.json` (modify) — declares the PostgreSQL client the
   driver imports, so the package compiles on a clean install.
 - `package-lock.json` (modify) — records the resolved versions.
+- `packages/database/src/postgres-driver.ts` (modify) — `incrementHits` returns a
+  boolean; `rowCount ?? 0 > 0` parsed as `rowCount ?? (0 > 0)` and returned the count,
+  which the newly visible types reject.
+- `apps/backend/tsconfig.json` (modify) — drops `vercel.ts` from `include`: it sits
+  outside `rootDir: src`, so `tsc` refused it; `@vercel/node` compiles it itself.
+- `apps/backend/src/utils/url-validator.ts` (modify) — `validateUrl` becomes an
+  assertion function, so the controller's `originalUrl` narrows to `string`.
 - `package.json` (modify) — decides which suites the gate runs.
 - `apps/frontend/src/components/ResultCard.test.tsx` (modify) — stubs the
   clipboard after `userEvent.setup()`, which otherwise replaces the stub.

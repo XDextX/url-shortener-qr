@@ -1,8 +1,10 @@
 # Tasks 001 — Green MVP
 
-- [ ] **T-1 — Declare the PostgreSQL client in the database package**
+- [x] **T-1 — Declare the PostgreSQL client in the database package**
   Covers: RF-1
-  Files: `packages/database/package.json`, `package-lock.json`
+  Files: `packages/database/package.json`, `package-lock.json`,
+  `packages/database/src/postgres-driver.ts`, `apps/backend/tsconfig.json`,
+  `apps/backend/src/utils/url-validator.ts`
   Done when: `npm run build` exits 0.
 
 - [ ] **T-2 — Stub the clipboard after `userEvent.setup()`**
