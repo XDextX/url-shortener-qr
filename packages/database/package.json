@@ -12,7 +12,8 @@
   "scripts": {
     "build": "prisma generate && tsc -p tsconfig.json",
     "db:deploy": "prisma migrate deploy",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",
@@ -26,6 +27,7 @@
     "@types/sql.js": "^1.0.4",
     "prisma": "7.10.1",
     "rimraf": "^5.0.10",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "vitest": "^1.6.1"
   }
 }

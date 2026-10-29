@@ -8,7 +8,7 @@
   Done when: `npm run build` exits 0 with the client generated, and the
   migration's SQL creates `Url` with the columns of `UrlRecord`.
 
-- [ ] **T-2 — Driver contract suite**
+- [x] **T-2 — Driver contract suite**
   Covers: RF-5, RF-7
   Files: `packages/database/tests/driver-contract.test.ts`, `packages/database/package.json`
   Done when: root `npm test` runs it, SQLite passes, Prisma shows as skipped, and
