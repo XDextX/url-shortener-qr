@@ -16,7 +16,7 @@
 
   Before T-3, so the Prisma driver is written against a suite that already bites.
 
-- [ ] **T-3 — Prisma driver replaces the `pg` driver**
+- [x] **T-3 — Prisma driver replaces the `pg` driver**
   Covers: RF-5
   Files: `packages/database/src/prisma-driver.ts`, `packages/database/src/postgres-driver.ts`
   (delete), `packages/database/src/index.ts`, `packages/database/package.json`,
@@ -24,6 +24,9 @@
   Done when: `npm test` and `npm run build` exit 0; the contract suite passes on
   Prisma with `TEST_DATABASE_URL` set to a Neon development branch; the `pg`
   import guard was seen red.
+
+  Ran 2026-10-29 against a schema-only Neon branch (empty `Url`, so not production):
+  all 12 contract tests pass, and an always-true `incrementHits` turns Prisma red.
 
 - [x] **T-4 — Store errors answer 500, invalid input 400**
   Covers: RF-8
@@ -46,7 +49,7 @@
   `tsx` under the SQLite driver yields the Express app; the README deploy section
   lists the owner's steps.
 
-- [ ] **T-7 — Deploy and verify in production** (owner + agent)
+- [x] **T-7 — Deploy and verify in production** (owner + agent)
   Covers: RF-1, RF-2, RF-3, RF-4, RF-6
   Owner: create the Vercel project from the repo, add Neon from the Marketplace,
   merge and push. Agent: run the block-7 manual checks against the production
@@ -54,3 +57,14 @@
   Done when: every manual check in plan block 7 is recorded as passed.
 
   Last, because it needs the owner's push and every other task merged.
+
+  Results on the production origin, 2026-10-29, deployment of `f2a4822`:
+  - [x] RF-1: `GET /` 200 `text/html`; the form, used in a browser, posts to its own
+    origin and gets 201.
+  - [x] RF-2: `POST /api/v1/urls` 201, `shortUrl` on the production origin, QR present.
+  - [x] RF-3: `GET /<code>` 302 to the original URL.
+  - [x] RF-8 (input side): `ftp://` gets 400 with a `message`.
+  - [x] RF-6: `_prisma_migrations` in Neon holds `20261029000000_init`, finished at
+    2026-10-29 23:26:41 UTC, by the build's `prisma migrate deploy`.
+  - [x] RF-4: after a redeploy, `GET /BNpALbV_` still answers 302, and re-posting the
+    browser's URL returns its existing code.

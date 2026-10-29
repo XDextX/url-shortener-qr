@@ -1,6 +1,6 @@
 # Spec 002 — Vercel deploy with Prisma on Postgres
 
-**Status:** approved (owner, 2026-10-29)
+**Status:** implemented (2026-10-29)
 **Size:** L
 
 ## Context and goal
