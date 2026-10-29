@@ -1,0 +1,23 @@
+// The production table. Mirrors UrlRecord in src/contracts.ts; change both together.
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Url {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  originalUrl String   @unique
+  qrSvg       String?
+  hits        Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("Url")
+}

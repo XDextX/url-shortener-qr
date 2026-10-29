@@ -1,6 +1,6 @@
 # Tasks 002 — Vercel deploy with Prisma on Postgres
 
-- [ ] **T-1 — Add the Prisma schema, config and initial migration**
+- [x] **T-1 — Add the Prisma schema, config and initial migration**
   Covers: RF-6
   Files: `packages/database/prisma/schema.prisma`, `packages/database/prisma.config.ts`,
   `packages/database/prisma/migrations/*`, `packages/database/package.json`,
