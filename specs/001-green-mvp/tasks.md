@@ -12,7 +12,7 @@
   Files: `apps/frontend/src/components/ResultCard.test.tsx`
   Done when: the frontend suite passes, 6/6.
 
-- [ ] **T-3 — Run every workspace suite from the root `npm test`**
+- [x] **T-3 — Run every workspace suite from the root `npm test`**
   Covers: RF-2
   Files: `package.json`
   Done when: root `npm test` lists backend and frontend files, and an injected

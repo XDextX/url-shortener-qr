@@ -1,6 +1,6 @@
 # Spec 001 — Green MVP
 
-**Status:** approved (owner, 2026-10-28)
+**Status:** implemented (2026-10-28)
 **Size:** S
 
 ## Context and goal
