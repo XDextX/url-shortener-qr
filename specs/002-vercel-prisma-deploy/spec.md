@@ -67,8 +67,10 @@ Found while reading the current configuration, to be confirmed by the plan:
 - Secrets: the database URL lives only in Vercel's environment and local `.env`
   files, never in the repo or the frontend bundle (constitution 6).
 - Cost: free tiers of Vercel and of the Postgres provider.
-- New dependencies: `prisma` and `@prisma/client` only, with the reason written
-  in the plan.
+- New dependencies: `prisma`, `@prisma/client` and `@prisma/adapter-pg` only,
+  with the reason written in the plan. Prisma 7 refuses to build a client without
+  a driver adapter, so the adapter is part of "Prisma on Postgres", not an extra
+  (amended 2026-10-29, pending the owner's approval with the plan).
 
 ## Edge cases
 - Database unreachable or URL unset in production: RF-8.
