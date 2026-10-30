@@ -94,7 +94,15 @@ export const incrementUrlHits = async (code: string): Promise<boolean> => {
 };
 
 /**
- * Removes every URL stored by the active driver.
+ * Counts one more event for a key in a fixed window and returns the key's count.
+ */
+export const consumeRateLimit = async (key: string, windowStart: Date): Promise<number> => {
+  const driver = await resolveDriver();
+  return driver.consumeRateLimit(key, windowStart);
+};
+
+/**
+ * Removes every URL and rate limit count stored by the active driver.
  */
 export const removeAllUrls = async (): Promise<void> => {
   const driver = await resolveDriver();

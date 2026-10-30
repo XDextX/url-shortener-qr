@@ -51,7 +51,15 @@ export interface DatabaseDriver {
   incrementHits(code: string): Promise<boolean>;
 
   /**
-   * Removes all records from the underlying store.
+   * Counts one more event for a key in a fixed window, forgetting the key's older windows.
+   * @param key - an opaque client key, never a raw IP
+   * @param windowStart - the start of the current window
+   * @returns the key's count in that window, this event included
+   */
+  consumeRateLimit(key: string, windowStart: Date): Promise<number>;
+
+  /**
+   * Removes all records from the underlying store, rate limit counts included.
    */
   clear(): Promise<void>;
 

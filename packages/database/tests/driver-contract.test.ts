@@ -65,6 +65,24 @@ const contract = (name: string, create: () => Promise<DatabaseDriver>, skip = fa
       expect(await driver.incrementHits("missing0")).toBe(false);
     });
 
+    it("counts per key and window, restarting in a new window (spec 004)", async () => {
+      const first = new Date("2026-01-01T00:00:00.000Z");
+      const next = new Date("2026-01-01T00:01:00.000Z");
+
+      expect(await driver.consumeRateLimit("client-a", first)).toBe(1);
+      expect(await driver.consumeRateLimit("client-a", first)).toBe(2);
+      expect(await driver.consumeRateLimit("client-b", first)).toBe(1);
+      expect(await driver.consumeRateLimit("client-a", next)).toBe(1);
+    });
+
+    it("clears the rate limit counts too", async () => {
+      const window = new Date("2026-01-01T00:00:00.000Z");
+      await driver.consumeRateLimit("client-a", window);
+      await driver.clear();
+
+      expect(await driver.consumeRateLimit("client-a", window)).toBe(1);
+    });
+
     it("clears every record", async () => {
       await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
       await driver.clear();

@@ -37,8 +37,17 @@ export const createPrismaDriver = async (
       });
       return count > 0;
     },
+    consumeRateLimit: async (key, windowStart) => {
+      await db().rateLimit.deleteMany({ where: { key, windowStart: { lt: windowStart } } });
+      const { count } = await db().rateLimit.upsert({
+        where: { key_windowStart: { key, windowStart } },
+        create: { key, windowStart },
+        update: { count: { increment: 1 } }
+      });
+      return count;
+    },
     clear: async () => {
-      await db().url.deleteMany();
+      await db().$transaction([db().url.deleteMany(), db().rateLimit.deleteMany()]);
     },
     getConnection: db
   };

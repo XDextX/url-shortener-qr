@@ -1,6 +1,6 @@
 # Tasks 004 — Rate limiting per IP
 
-- [ ] **T-1 — Count per key and window in both drivers**
+- [x] **T-1 — Count per key and window in both drivers**
   Covers: RF-4
   Files: `packages/database/src/{contracts,index,sqlite-driver,prisma-driver}.ts`,
   `packages/database/prisma/schema.prisma`, a new migration,
