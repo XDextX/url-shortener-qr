@@ -26,7 +26,8 @@
     "error.invalid": "URL no válida. Verifica el formato.",
     "error.protocol": "Solo se aceptan URLs HTTP/HTTPS",
     "error.tooLong": "URL demasiado larga (máximo 2048 caracteres)",
-    "error.server": "Error al procesar tu URL. Intenta de nuevo."
+    "error.server": "Error al procesar tu URL. Intenta de nuevo.",
+    "error.rateLimited": "Demasiados enlaces en poco tiempo. Espera un minuto y vuelve a intentarlo."
   },
   "result": {
     "title": "Tu enlace esta listo",

@@ -26,7 +26,8 @@
     "error.invalid": "Invalid URL format. Please check.",
     "error.protocol": "Only HTTP/HTTPS URLs are accepted",
     "error.tooLong": "URL is too long (maximum 2048 characters)",
-    "error.server": "Error processing your URL. Please try again."
+    "error.server": "Error processing your URL. Please try again.",
+    "error.rateLimited": "Too many links in a short time. Wait a minute and try again."
   },
   "result": {
     "title": "Your link is ready",

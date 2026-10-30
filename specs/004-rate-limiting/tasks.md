@@ -16,7 +16,7 @@
   Done when: the route and unit tests pass, and the off-by-one injection turns
   them red.
 
-- [ ] **T-3 — Tell the visitor to wait**
+- [x] **T-3 — Tell the visitor to wait**
   Covers: RF-5
   Files: `apps/frontend/src/api/client.ts`, `apps/frontend/src/components/UrlForm.tsx`,
   `apps/frontend/src/i18n/resources/{en,es}/common.json`, a form test

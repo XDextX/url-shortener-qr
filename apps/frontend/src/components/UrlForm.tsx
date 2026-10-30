@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createShortUrl, ShortUrlResponse } from "@api/client";
+import { ApiError, createShortUrl, ShortUrlResponse } from "@api/client";
 import { Button } from "@components/Button";
 
 interface Props {
@@ -62,6 +62,10 @@ export const UrlForm = ({ onSuccess }: Props) => {
       onSuccess(result);
       setUrl("");
     } catch (err) {
+      if (err instanceof ApiError && err.status === 429) {
+        setError(t("form.error.rateLimited"));
+        return;
+      }
       const message = (err as Error).message?.trim();
       setError(message && message.length > 0 ? message : t("form.error.server"));
     } finally {
