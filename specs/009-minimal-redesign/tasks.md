@@ -10,7 +10,7 @@ Each visual task stops for the owner's approval in light and dark before its com
   Done when: the guard passes, its value and contrast injections turn it red, and the font
   loads on the rendered page.
 
-- [ ] **T-2 — Button**
+- [x] **T-2 — Button**
   Covers: RF-3, RF-4, RF-5
   Files: `apps/frontend/src/components/Button.tsx`, the guard
   Done when: approved in both themes.

@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import css from "../index.css?raw";
 
+// Grows task by task as each component is redesigned; every component by the last one.
+const REDESIGNED = ["Button"];
+const SOURCES = import.meta.glob<string>("../components/*.tsx", {
+  query: "?raw",
+  import: "default",
+  eager: true
+});
+const source = (name: string): string => SOURCES[`../components/${name}.tsx`];
+
 // The palette the spec fixes, read from the Portfolio's theme files (spec 009).
 const PALETTE = {
   light: {
@@ -93,6 +102,10 @@ describe("design tokens (spec 009)", () => {
     it.each(["background", "surface"])("control-border on %s reaches 3:1 (RF-2)", (ground) => {
       expect(contrast(palette["control-border"], palette[ground])).toBeGreaterThanOrEqual(3);
     });
+  });
+
+  it.each(REDESIGNED)("%s draws no shadow and nothing lifts (RF-3, RF-4)", (name) => {
+    expect(source(name)).not.toMatch(/\bshadow\b|shadow-|translate-/);
   });
 
   it("loads the self-hosted IBM Plex Sans", () => {
