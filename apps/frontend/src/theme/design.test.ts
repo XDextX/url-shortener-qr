@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import css from "../index.css?raw";
 
 // Grows task by task as each component is redesigned; every component by the last one.
-const REDESIGNED = ["Button", "UrlForm", "ResultCard"];
+const REDESIGNED = ["Button", "UrlForm", "ResultCard", "LinkStats"];
 const SOURCES = import.meta.glob<string>("../components/*.tsx", {
   query: "?raw",
   import: "default",

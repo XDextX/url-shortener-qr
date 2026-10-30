@@ -25,7 +25,7 @@ Each visual task stops for the owner's approval in light and dark before its com
   Files: `apps/frontend/src/components/ResultCard.tsx`, the guard
   Done when: approved in both themes; the QR code stays black on white.
 
-- [ ] **T-5 — Statistics card**
+- [x] **T-5 — Statistics card**
   Covers: RF-3, RF-4, RF-6
   Files: `apps/frontend/src/components/LinkStats.tsx`, the guard
   Done when: approved in both themes, with found and not-found states.
