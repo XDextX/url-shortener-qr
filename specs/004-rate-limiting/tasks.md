@@ -22,9 +22,15 @@
   `apps/frontend/src/i18n/resources/{en,es}/common.json`, a form test
   Done when: the form test passes and the injection turns it red.
 
-- [ ] **T-4 — Document, deploy and check live**
+- [x] **T-4 — Document, deploy and check live**
   Covers: RF-1, RF-2, RF-5
   Files: `README.md`, `specs/004-rate-limiting/*`
   Done when: the README guard passes; after merge and push the migration
   applies, the eleventh creation in a minute gets 429, and the form shows the
   message in both locales and themes.
+
+  Results on the live demo, 2026-10-29: the migration applied on deploy; ten
+  creations from one client got 201 and the eleventh 429 with `Retry-After: 24`;
+  the form then showed "Too many links in a short time. Wait a minute and try
+  again." The Spanish text is covered by the locale parity test; the error line
+  reuses the form's existing error style, already shown in both themes.
