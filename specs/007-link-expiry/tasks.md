@@ -14,7 +14,7 @@
   Done when: the expiry tests pass and the skipped-check injection turns RF-4
   red.
 
-- [ ] **T-3 — Choose and show the expiry in the page**
+- [x] **T-3 — Choose and show the expiry in the page**
   Covers: RF-6, RF-7
   Files: `apps/frontend/src/{api/client.ts,components/UrlForm.tsx,components/LinkStats.tsx}`,
   the locale files, frontend tests

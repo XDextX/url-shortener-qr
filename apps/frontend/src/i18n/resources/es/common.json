@@ -32,7 +32,13 @@
     "error.server": "Error al procesar tu URL. Intenta de nuevo.",
     "error.rateLimited": "Demasiados enlaces en poco tiempo. Espera un minuto y vuelve a intentarlo.",
     "error.aliasInvalid": "El alias debe tener de 3 a 32 letras, dígitos, - o _.",
-    "error.aliasTaken": "Ese alias ya está en uso, o esta URL ya tiene un enlace corto."
+    "error.aliasTaken": "Ese alias ya está en uso, o esta URL ya tiene un enlace corto.",
+    "expiresLabel": "Caduca",
+    "expires.never": "Nunca",
+    "expires.1h": "En 1 hora",
+    "expires.1d": "En 1 día",
+    "expires.7d": "En 7 días",
+    "expires.30d": "En 30 días"
   },
   "result": {
     "title": "Tu enlace esta listo",
@@ -59,6 +65,9 @@
     "hits_other": "{{count}} visitas",
     "createdAt": "Creado",
     "notFound": "Ningún enlace tiene ese código.",
-    "error": "No se pudieron cargar las estadísticas. Intenta de nuevo."
+    "error": "No se pudieron cargar las estadísticas. Intenta de nuevo.",
+    "expiresLabel": "Caduca",
+    "never": "Nunca",
+    "expiredOn": "Caducó el {{date}}"
   }
 }

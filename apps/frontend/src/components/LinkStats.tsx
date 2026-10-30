@@ -53,6 +53,9 @@ export const LinkStats = ({ requestedCode }: Props) => {
     }
   }, [requestedCode]);
 
+  const formatDate = (iso: string): string =>
+    new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     void lookUp(codeFromInput(input));
@@ -84,10 +87,14 @@ export const LinkStats = ({ requestedCode }: Props) => {
           <dt className="font-semibold text-text-primary">{t("stats.hitsLabel")}</dt>
           <dd className="text-text-secondary">{t("stats.hits", { count: state.link.hits })}</dd>
           <dt className="font-semibold text-text-primary">{t("stats.createdAt")}</dt>
+          <dd className="text-text-secondary">{formatDate(state.link.createdAt)}</dd>
+          <dt className="font-semibold text-text-primary">{t("stats.expiresLabel")}</dt>
           <dd className="text-text-secondary">
-            {new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(
-              new Date(state.link.createdAt)
-            )}
+            {state.link.expiresAt === null
+              ? t("stats.never")
+              : Date.parse(state.link.expiresAt) <= Date.now()
+                ? t("stats.expiredOn", { date: formatDate(state.link.expiresAt) })
+                : formatDate(state.link.expiresAt)}
           </dd>
         </dl>
       ) : null}
