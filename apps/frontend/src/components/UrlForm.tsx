@@ -5,6 +5,8 @@ import { Button } from "@components/Button";
 
 // Repeated in apps/backend/src/utils/alias-validator.ts: change both together (spec 005).
 const ALIAS_PATTERN = /^[A-Za-z0-9_-]{3,32}$/;
+// The lifetimes the API accepts (spec 007); an empty value means the link never expires.
+const LIFETIMES = ["1h", "1d", "7d", "30d"];
 
 interface Props {
   onSuccess: (payload: ShortUrlResponse) => void;
@@ -46,6 +48,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [alias, setAlias] = useState("");
+  const [expiresIn, setExpiresIn] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,10 +71,11 @@ export const UrlForm = ({ onSuccess }: Props) => {
     try {
       setLoading(true);
       setError(null);
-      const result = await createShortUrl(url.trim(), chosenAlias);
+      const result = await createShortUrl(url.trim(), chosenAlias, expiresIn || undefined);
       onSuccess(result);
       setUrl("");
       setAlias("");
+      setExpiresIn("");
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
         setError(t("form.error.rateLimited"));
@@ -114,6 +118,21 @@ export const UrlForm = ({ onSuccess }: Props) => {
         <span id="alias-hint" className="mt-1 block text-xs font-normal text-text-secondary">
           {t("form.aliasHint")}
         </span>
+      </label>
+      <label className="block text-sm font-semibold text-text-primary">
+        {t("form.expiresLabel")}
+        <select
+          value={expiresIn}
+          onChange={(event) => setExpiresIn(event.target.value)}
+          className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+        >
+          <option value="">{t("form.expires.never")}</option>
+          {LIFETIMES.map((lifetime) => (
+            <option key={lifetime} value={lifetime}>
+              {t(`form.expires.${lifetime}`)}
+            </option>
+          ))}
+        </select>
       </label>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
       <Button type="submit" loading={loading} loadingText={t("form.loading")}>

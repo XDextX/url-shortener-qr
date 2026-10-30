@@ -11,13 +11,14 @@ vi.mock("@api/client", async (importOriginal) => ({
   fetchLinkStats: vi.fn()
 }));
 
-const stats = (hits: number): ShortUrlResponse => ({
+const stats = (hits: number, expiresAt: string | null = null): ShortUrlResponse => ({
   code: "abc12345",
   shortUrl: "https://short.example/abc12345",
   originalUrl: "https://example.com/talk",
   qrCodeDataUrl: "data:image/png;base64,",
   hits,
-  createdAt: "2026-10-29T12:00:00.000Z"
+  createdAt: "2026-10-29T12:00:00.000Z",
+  expiresAt
 });
 
 /**
@@ -62,6 +63,28 @@ describe("LinkStats (spec 006)", () => {
     await lookUp("abc12345");
 
     expect(await screen.findByText("1 visit")).toBeInTheDocument();
+  });
+
+  it("says a link without expiry never expires (spec 007, RF-7)", async () => {
+    vi.mocked(fetchLinkStats).mockResolvedValue(stats(0));
+    await lookUp("abc12345");
+
+    expect(await screen.findByText("Never")).toBeInTheDocument();
+  });
+
+  it("shows when a live link expires (spec 007, RF-7)", async () => {
+    vi.mocked(fetchLinkStats).mockResolvedValue(stats(0, "2999-06-15T12:00:00.000Z"));
+    await lookUp("abc12345");
+
+    expect(await screen.findByText(/2999/)).toBeInTheDocument();
+    expect(screen.queryByText(/expired on/i)).not.toBeInTheDocument();
+  });
+
+  it("says when a link expired (spec 007, RF-7)", async () => {
+    vi.mocked(fetchLinkStats).mockResolvedValue(stats(0, "2000-06-15T12:00:00.000Z"));
+    await lookUp("abc12345");
+
+    expect(await screen.findByText(/expired on .*2000/i)).toBeInTheDocument();
   });
 
   it("says when no link has that code (RF-3)", async () => {

@@ -32,7 +32,13 @@
     "error.server": "Error processing your URL. Please try again.",
     "error.rateLimited": "Too many links in a short time. Wait a minute and try again.",
     "error.aliasInvalid": "The alias must be 3 to 32 letters, digits, - or _.",
-    "error.aliasTaken": "That alias is already taken, or this URL already has a short link."
+    "error.aliasTaken": "That alias is already taken, or this URL already has a short link.",
+    "expiresLabel": "Expires",
+    "expires.never": "Never",
+    "expires.1h": "In 1 hour",
+    "expires.1d": "In 1 day",
+    "expires.7d": "In 7 days",
+    "expires.30d": "In 30 days"
   },
   "result": {
     "title": "Your link is ready",
@@ -59,6 +65,9 @@
     "hits_other": "{{count}} visits",
     "createdAt": "Created",
     "notFound": "No link has that code.",
-    "error": "Could not load the statistics. Please try again."
+    "error": "Could not load the statistics. Please try again.",
+    "expiresLabel": "Expires",
+    "never": "Never",
+    "expiredOn": "Expired on {{date}}"
   }
 }

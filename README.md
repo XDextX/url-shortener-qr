@@ -15,6 +15,7 @@ Postgres.
   the visitor chooses.
 - Generates a QR code for every short link.
 - Returns the existing code when the same URL is shortened twice.
+- Lets a link expire after 1 hour, 1 day, 7 days or 30 days.
 - Counts every redirect as a hit, and shows each link's visits and creation
   date on the page.
 - Limits link creation per client, so no one can flood the database.
@@ -58,7 +59,10 @@ All responses are JSON unless noted. Examples use the live demo.
 
 Shortens a URL. Shortening a URL that already exists returns its existing code.
 An optional `alias` (3 to 32 letters, digits, `-` or `_`) becomes the code
-instead of a random one; `api`, `health` and `assets` are reserved.
+instead of a random one; `api`, `health` and `assets` are reserved. An
+optional `expiresIn` (`1h`, `1d`, `7d` or `30d`) makes the link stop
+redirecting after that time; shortening an expired link's URL again renews it
+with the same code, while a live link keeps its expiry.
 
 ```bash
 curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
@@ -73,13 +77,15 @@ curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
   "originalUrl": "https://example.com/a/long/path",
   "qrCodeDataUrl": "data:image/png;base64,...",
   "hits": 0,
-  "createdAt": "2026-10-29T12:00:00.000Z"
+  "createdAt": "2026-10-29T12:00:00.000Z",
+  "expiresAt": null
 }
 ```
 
 - `201` the short link was created or already existed.
 - `400` the URL is missing, longer than 2048 characters, malformed, or not
-  `http`/`https`, or the alias breaks its rule; the body carries a `message`.
+  `http`/`https`, or the alias or `expiresIn` breaks its rule; the body
+  carries a `message`.
 - `409` the alias is taken, or the URL already has a short link under another
   code, which the `message` names.
 - `429` this client created too many links this minute (10 by default); the
@@ -102,6 +108,7 @@ Redirects to the original URL and counts a hit.
 
 - `302` redirect to the original URL.
 - `404` no short link has that code (plain text).
+- `410` the link has expired; no hit is counted (plain text).
 - `500` the store failed (plain text).
 
 **GET** `/health`
@@ -177,7 +184,9 @@ Preview deployments share the production database.
 
 ## Roadmap
 
-- Links that expire after a chosen time.
+- QR codes downloadable as SVG as well as PNG.
+- Accounts, so a visitor can list and manage their own links.
+- Custom domains for short links.
 
 ## License and contact
 

@@ -94,6 +94,14 @@ export const incrementUrlHits = async (code: string): Promise<boolean> => {
 };
 
 /**
+ * Sets a link's expiry and returns the updated record, or null when no link has that code.
+ */
+export const renewUrlExpiry = async (code: string, expiresAt: Date | null): Promise<UrlRecord | null> => {
+  const driver = await resolveDriver();
+  return driver.renewExpiry(code, expiresAt);
+};
+
+/**
  * Counts one more event for a key in a fixed window and returns the key's count.
  */
 export const consumeRateLimit = async (key: string, windowStart: Date): Promise<number> => {

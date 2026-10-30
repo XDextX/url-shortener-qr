@@ -5,6 +5,8 @@ export interface ShortUrlResponse {
   qrCodeDataUrl: string;
   hits: number;
   createdAt: string;
+  /** When the link stops redirecting (spec 007); null when it never does. */
+  expiresAt: string | null;
 }
 
 /**
@@ -39,16 +41,21 @@ const getBaseApiUrl = (): string => resolveApiBaseUrl(import.meta.env, window.lo
  * Asks the API for a short link.
  * @param originalUrl - the URL to shorten
  * @param alias - a chosen code (spec 005); omitted from the request when undefined
+ * @param expiresIn - a lifetime such as "1d" (spec 007); omitted when undefined
  * @returns the short link and its QR
  * @throws ApiError with the HTTP status on a non-2xx answer
  */
-export const createShortUrl = async (originalUrl: string, alias?: string): Promise<ShortUrlResponse> => {
+export const createShortUrl = async (
+  originalUrl: string,
+  alias?: string,
+  expiresIn?: string
+): Promise<ShortUrlResponse> => {
   const response = await fetch(`${getBaseApiUrl()}/api/v1/urls`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ originalUrl, alias })
+    body: JSON.stringify({ originalUrl, alias, expiresIn })
   });
 
   if (!response.ok) {

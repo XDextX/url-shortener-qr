@@ -20,7 +20,8 @@ describe("App (spec 006)", () => {
       originalUrl: "https://example.com/talk",
       qrCodeDataUrl: "data:image/png;base64,",
       hits: 0,
-      createdAt: "2026-10-29T12:00:00.000Z"
+      createdAt: "2026-10-29T12:00:00.000Z",
+      expiresAt: null
     };
     vi.mocked(createShortUrl).mockResolvedValue(link);
     vi.mocked(fetchLinkStats).mockResolvedValue({ ...link, hits: 3 });

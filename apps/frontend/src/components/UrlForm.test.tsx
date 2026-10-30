@@ -17,19 +17,24 @@ const sample = {
   originalUrl: "https://example.com",
   qrCodeDataUrl: "data:image/png;base64,",
   hits: 0,
-  createdAt: "2026-10-29T12:00:00.000Z"
+  createdAt: "2026-10-29T12:00:00.000Z",
+  expiresAt: null
 };
 
 /**
  * Fills the form and submits it.
  * @param alias - typed into the alias field when given
+ * @param lifetime - the expiry option's visible text, chosen when given
  */
-const submit = async (alias?: string) => {
+const submit = async (alias?: string, lifetime?: string) => {
   const user = userEvent.setup();
   renderWithI18n(<UrlForm onSuccess={vi.fn()} />);
   await user.type(screen.getByLabelText(/original url/i), "https://example.com");
   if (alias) {
     await user.type(screen.getByLabelText(/custom alias/i), alias);
+  }
+  if (lifetime) {
+    await user.selectOptions(screen.getByLabelText(/expires/i), lifetime);
   }
   await user.click(screen.getByRole("button", { name: /generate short url/i }));
 };
@@ -50,11 +55,18 @@ describe("UrlForm", () => {
     vi.mocked(createShortUrl).mockResolvedValue(sample);
 
     await submit("my-alias");
-    expect(createShortUrl).toHaveBeenLastCalledWith("https://example.com", "my-alias");
+    expect(createShortUrl).toHaveBeenLastCalledWith("https://example.com", "my-alias", undefined);
 
     document.body.innerHTML = "";
     await submit();
-    expect(createShortUrl).toHaveBeenLastCalledWith("https://example.com", undefined);
+    expect(createShortUrl).toHaveBeenLastCalledWith("https://example.com", undefined, undefined);
+  });
+
+  it("sends the chosen lifetime, and none by default (spec 007, RF-6)", async () => {
+    vi.mocked(createShortUrl).mockResolvedValue(sample);
+
+    await submit(undefined, "In 1 day");
+    expect(createShortUrl).toHaveBeenLastCalledWith("https://example.com", undefined, "1d");
   });
 
   it("says the alias is taken when the API answers 409 (spec 005, RF-6)", async () => {

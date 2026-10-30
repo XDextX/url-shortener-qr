@@ -3,7 +3,8 @@ import {
   findUrlByOriginalUrl,
   incrementUrlHits,
   insertUrl,
-  removeAllUrls
+  removeAllUrls,
+  renewUrlExpiry
 } from "@url-shortener/database";
 import type { UrlRecord } from "@url-shortener/database";
 import { nanoid } from "nanoid";
@@ -14,6 +15,7 @@ import { nanoid } from "nanoid";
 export interface UrlEntity {
   code: string;
   originalUrl: string;
+  expiresAt?: Date | null;
 }
 
 /**
@@ -29,7 +31,8 @@ export const createShortCode = (): string => {
 export const saveUrl = async (entity: UrlEntity): Promise<UrlRecord> => {
   return insertUrl({
     code: entity.code,
-    originalUrl: entity.originalUrl
+    originalUrl: entity.originalUrl,
+    expiresAt: entity.expiresAt ?? null
   });
 };
 
@@ -45,6 +48,13 @@ export const findByCode = async (code: string): Promise<UrlRecord | null> => {
  */
 export const findByOriginalUrl = async (originalUrl: string): Promise<UrlRecord | null> => {
   return findUrlByOriginalUrl(originalUrl);
+};
+
+/**
+ * Sets a stored URL's expiry (spec 007).
+ */
+export const renewExpiry = async (code: string, expiresAt: Date | null): Promise<UrlRecord | null> => {
+  return renewUrlExpiry(code, expiresAt);
 };
 
 /**

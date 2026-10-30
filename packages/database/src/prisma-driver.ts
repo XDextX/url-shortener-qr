@@ -25,7 +25,12 @@ export const createPrismaDriver = async (
     },
     insert: (input) =>
       db().url.create({
-        data: { code: input.code, originalUrl: input.originalUrl, qrSvg: input.qrSvg ?? null }
+        data: {
+          code: input.code,
+          originalUrl: input.originalUrl,
+          qrSvg: input.qrSvg ?? null,
+          expiresAt: input.expiresAt ?? null
+        }
       }),
     findByCode: (code) => db().url.findUnique({ where: { code } }),
     findByOriginalUrl: (originalUrl) => db().url.findUnique({ where: { originalUrl } }),
@@ -36,6 +41,10 @@ export const createPrismaDriver = async (
         data: { hits: { increment: 1 } }
       });
       return count > 0;
+    },
+    renewExpiry: async (code, expiresAt) => {
+      const { count } = await db().url.updateMany({ where: { code }, data: { expiresAt } });
+      return count > 0 ? db().url.findUnique({ where: { code } }) : null;
     },
     consumeRateLimit: async (key, windowStart) => {
       await db().rateLimit.deleteMany({ where: { key, windowStart: { lt: windowStart } } });

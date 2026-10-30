@@ -176,6 +176,12 @@ const ensureSchema = async (ctx: DatabaseContext): Promise<void> => {
     );
   `);
 
+  // Files created before spec 007 lack the column: CREATE TABLE IF NOT EXISTS never adds it.
+  const [columns] = ctx.db.exec(`PRAGMA table_info("Url");`);
+  if (!columns.values.some((column) => column[1] === "expiresAt")) {
+    ctx.db.exec(`ALTER TABLE "Url" ADD COLUMN "expiresAt" TEXT;`);
+  }
+
   schemaEnsured = true;
   await persistDatabase(ctx);
 };
@@ -191,6 +197,7 @@ const mapRow = (row: {
   hits: number;
   createdAt: string;
   updatedAt: string;
+  expiresAt: string | null;
 }): UrlRecord => ({
   id: row.id,
   code: row.code,
@@ -198,7 +205,8 @@ const mapRow = (row: {
   qrSvg: row.qrSvg ?? null,
   hits: Number(row.hits),
   createdAt: new Date(row.createdAt),
-  updatedAt: new Date(row.updatedAt)
+  updatedAt: new Date(row.updatedAt),
+  expiresAt: row.expiresAt === null ? null : new Date(row.expiresAt)
 });
 
 /**
@@ -212,6 +220,7 @@ const getRowFromStatement = (statement: Statement): {
   hits: number;
   createdAt: string;
   updatedAt: string;
+  expiresAt: string | null;
 } => {
   const raw = statement.getAsObject() as Record<string, string | number | null>;
 
@@ -222,7 +231,8 @@ const getRowFromStatement = (statement: Statement): {
     qrSvg: raw.qrSvg === null ? null : String(raw.qrSvg),
     hits: Number(raw.hits ?? 0),
     createdAt: String(raw.createdAt),
-    updatedAt: String(raw.updatedAt)
+    updatedAt: String(raw.updatedAt),
+    expiresAt: raw.expiresAt === null || raw.expiresAt === undefined ? null : String(raw.expiresAt)
   };
 };
 
@@ -250,14 +260,15 @@ const insert = async (input: InsertUrlInput): Promise<UrlRecord> => {
     qrSvg: input.qrSvg ?? null,
     hits: 0,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    expiresAt: input.expiresAt ? input.expiresAt.toISOString() : null
   };
 
   const statement = ctx.db.prepare(`
     INSERT INTO "Url" (
-      "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt"
+      "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt", "expiresAt"
     ) VALUES (
-      $id, $code, $originalUrl, $qrSvg, $hits, $createdAt, $updatedAt
+      $id, $code, $originalUrl, $qrSvg, $hits, $createdAt, $updatedAt, $expiresAt
     );
   `);
 
@@ -268,7 +279,8 @@ const insert = async (input: InsertUrlInput): Promise<UrlRecord> => {
     $qrSvg: row.qrSvg,
     $hits: row.hits,
     $createdAt: row.createdAt,
-    $updatedAt: row.updatedAt
+    $updatedAt: row.updatedAt,
+    $expiresAt: row.expiresAt
   });
 
   statement.step();
@@ -287,7 +299,7 @@ const find = async (code: string): Promise<UrlRecord | null> => {
   await ensureSchema(ctx);
 
   const statement = ctx.db.prepare(`
-    SELECT "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt"
+    SELECT "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt", "expiresAt"
     FROM "Url"
     WHERE "code" = $code
     LIMIT 1;
@@ -316,7 +328,7 @@ const findByOriginalUrl = async (originalUrl: string): Promise<UrlRecord | null>
   await ensureSchema(ctx);
 
   const statement = ctx.db.prepare(`
-    SELECT "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt"
+    SELECT "id", "code", "originalUrl", "qrSvg", "hits", "createdAt", "updatedAt", "expiresAt"
     FROM "Url"
     WHERE "originalUrl" = $originalUrl
     LIMIT 1;
@@ -363,6 +375,26 @@ const increment = async (code: string): Promise<boolean> => {
   }
 
   return changes > 0;
+};
+
+/**
+ * Sets a link's expiry, returning the updated record or null for an unknown code.
+ */
+const renewExpiry = async (code: string, expiresAt: Date | null): Promise<UrlRecord | null> => {
+  const ctx = await loadContext();
+  await ensureSchema(ctx);
+
+  ctx.db.run(`UPDATE "Url" SET "expiresAt" = $expiresAt, "updatedAt" = $updatedAt WHERE "code" = $code;`, {
+    $code: code,
+    $expiresAt: expiresAt ? expiresAt.toISOString() : null,
+    $updatedAt: new Date().toISOString()
+  });
+  if (ctx.db.getRowsModified() === 0) {
+    return null;
+  }
+
+  await persistDatabase(ctx);
+  return find(code);
 };
 
 /**
@@ -421,6 +453,7 @@ export const createSqliteDriver = async (): Promise<DatabaseDriver> => {
     findByCode: find,
     findByOriginalUrl,
     incrementHits: increment,
+    renewExpiry,
     consumeRateLimit,
     clear,
     getConnection
