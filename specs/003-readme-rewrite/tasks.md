@@ -16,7 +16,7 @@
   Done when: the file shows the demo in its dark theme with a shortened URL and
   its QR, no local path or personal data in it, and it is under 300 KB.
 
-- [ ] **T-3 — Write the README guard, then rewrite the README**
+- [x] **T-3 — Write the README guard, then rewrite the README**
   Covers: RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7, RF-8
   Files: `apps/backend/tests/readme.test.ts`, `README.md`
   Done when: the guard, written first, fails against today's README; after the
