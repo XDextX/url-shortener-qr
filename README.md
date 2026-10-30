@@ -15,6 +15,7 @@ Postgres.
 - Generates a QR code for every short link.
 - Returns the existing code when the same URL is shortened twice.
 - Counts every redirect as a hit.
+- Limits link creation per client, so no one can flood the database.
 - English and Spanish interface, light and dark theme.
 - No sign-up: open the page and use it.
 
@@ -73,6 +74,9 @@ curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
 - `201` the short link was created or already existed.
 - `400` the URL is missing, longer than 2048 characters, malformed, or not
   `http`/`https`; the body carries a `message`.
+- `429` this client created too many links this minute (10 by default); the
+  `Retry-After` header says how many seconds to wait. Clients are counted by a
+  hash of their IP, so no address is stored.
 - `500` the store failed; the body carries only a generic `message`.
 
 **GET** `/api/v1/urls/:code`
@@ -125,6 +129,7 @@ The variables that matter, in `apps/backend/.env`:
 - `FRONTEND_URL`: where `GET /` redirects and the origin CORS allows.
 - `DATABASE_DRIVER` and `DATABASE_URL`: `sqlite` and a `file:` path by
   default; `postgres` and a connection string for Postgres.
+- `RATE_LIMIT_MAX`: links one client may create per minute, `10` by default.
 
 ## Testing
 
@@ -163,7 +168,6 @@ Preview deployments share the production database.
 
 ## Roadmap
 
-- Rate limiting per IP on link creation.
 - Custom aliases chosen by the user.
 - A statistics view for each link's hits.
 - Links that expire after a chosen time.
