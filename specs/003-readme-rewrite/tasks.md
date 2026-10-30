@@ -10,9 +10,9 @@
   First, because RF-4's check traces every documented status to a test or the
   production run, and these three had neither.
 
-- [ ] **T-2 — Take the screenshot**
+- [x] **T-2 — Take the screenshot**
   Covers: RF-2
-  Files: `docs/screenshot.png`
+  Files: `docs/screenshot.jpg`
   Done when: the file shows the demo in its dark theme with a shortened URL and
   its QR, no local path or personal data in it, and it is under 300 KB.
 

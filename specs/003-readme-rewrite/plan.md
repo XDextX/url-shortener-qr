@@ -29,7 +29,7 @@
 ## 2. Files
 - `README.md` (rewrite) — the only page a visitor reads before deciding
   whether to look further.
-- `docs/screenshot.png` (create) — shows the app with a shortened URL and its
+- `docs/screenshot.jpg` (create) — shows the app with a shortened URL and its
   QR, taken from the live demo.
 - `apps/backend/tests/url.routes.test.ts` (modify) — covers the three error
   statuses the README documents and no test produced yet.
@@ -94,8 +94,9 @@ one image, the app in its dark theme, which reads on either GitHub theme.
   `npm test` (`--workspaces`) never runs, and a new workspace for one file.
 - **Routes read from the Express app.** Discarded: a hardcoded list in the
   test, a second copy that drifts with the routes.
-- **One screenshot, dark theme, PNG under `docs/`.** Discarded: one per theme
-  (two binaries for one point), and a GIF (heavier, and the 300 KB cap).
+- **One screenshot, dark theme, JPEG under `docs/`.** Discarded: one per theme
+  (two binaries for one point), a GIF (heavier, and the 300 KB cap), and PNG,
+  which needed an image library the repo does not have to convert the capture.
 - **Taken from the live demo with the built-in browser.** Discarded: the local
   dev server, whose `localhost` short URL would show in the picture.
 - **Statuses recorded, not re-requested in the test.** Discarded: hitting the
