@@ -30,7 +30,7 @@ Each visual task stops for the owner's approval in light and dark before its com
   Files: `apps/frontend/src/components/LinkStats.tsx`, the guard
   Done when: approved in both themes, with found and not-found states.
 
-- [ ] **T-6 — Header, switchers and layout**
+- [x] **T-6 — Header, switchers and layout**
   Covers: RF-3, RF-4, RF-5, RF-7
   Files: `apps/frontend/src/App.tsx`, `apps/frontend/src/components/ThemeSwitcher.tsx`,
   `apps/frontend/src/components/LanguageSwitcher.tsx`, the guard

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import app from "../App.tsx?raw";
 import css from "../index.css?raw";
 
-// Grows task by task as each component is redesigned; every component by the last one.
-const REDESIGNED = ["Button", "UrlForm", "ResultCard", "LinkStats"];
+const REDESIGNED = ["Button", "UrlForm", "ResultCard", "LinkStats", "ThemeSwitcher", "LanguageSwitcher"];
 const SOURCES = import.meta.glob<string>("../components/*.tsx", {
   query: "?raw",
   import: "default",
@@ -110,6 +110,12 @@ describe("design tokens (spec 009)", () => {
 
   it.each(REDESIGNED)("%s shows errors in the error colour, not the accent (RF-6)", (name) => {
     expect(source(name)).not.toMatch(/<p[^>]*text-accent/);
+  });
+
+  it("draws no shadow on the page shell, and no band behind the header (RF-3, RF-7)", () => {
+    expect(app).not.toMatch(/\bshadow\b|shadow-/);
+    expect(app).not.toMatch(/<header[^>]*bg-surface/);
+    expect(app).not.toMatch(/max-w-3xl/);
   });
 
   it("loads the self-hosted IBM Plex Sans", () => {

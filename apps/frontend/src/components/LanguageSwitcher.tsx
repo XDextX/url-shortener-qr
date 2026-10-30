@@ -22,7 +22,7 @@ export const LanguageSwitcher = () => {
       <select
         value={current}
         onChange={handleChange}
-        className="rounded-md border border-border bg-surface px-2 py-1 text-sm text-text-primary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+        className="field mt-0 w-auto px-2 py-1 text-sm"
       >
         {LANGUAGE_ORDER.filter((code) => supportedLanguages.includes(code)).map((code) => (
           <option key={code} value={code}>
