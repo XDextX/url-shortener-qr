@@ -21,3 +21,13 @@ model Url {
 
   @@map("Url")
 }
+
+// Link creations per hashed client and fixed window (spec 004). Mirrors consumeRateLimit.
+model RateLimit {
+  key         String
+  windowStart DateTime
+  count       Int      @default(1)
+
+  @@id([key, windowStart])
+  @@map("RateLimit")
+}

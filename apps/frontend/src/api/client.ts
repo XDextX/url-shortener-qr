@@ -5,6 +5,19 @@ export interface ShortUrlResponse {
   qrCodeDataUrl: string;
 }
 
+/**
+ * An API answer that was not 2xx, carrying its HTTP status so callers can tell causes apart.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
 /**
@@ -31,7 +44,7 @@ export const createShortUrl = async (originalUrl: string): Promise<ShortUrlRespo
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.message ?? "Error al crear el short URL");
+    throw new ApiError(errorBody.message ?? "Error al crear el short URL", response.status);
   }
 
   return response.json();

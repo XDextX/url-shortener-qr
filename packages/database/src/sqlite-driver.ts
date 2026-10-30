@@ -167,6 +167,13 @@ const ensureSchema = async (ctx: DatabaseContext): Promise<void> => {
 
     CREATE UNIQUE INDEX IF NOT EXISTS "Url_code_key" ON "Url"("code");
     CREATE UNIQUE INDEX IF NOT EXISTS "Url_originalUrl_key" ON "Url"("originalUrl");
+
+    CREATE TABLE IF NOT EXISTS "RateLimit" (
+      "key" TEXT NOT NULL,
+      "windowStart" TEXT NOT NULL,
+      "count" INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY ("key", "windowStart")
+    );
   `);
 
   schemaEnsured = true;
@@ -359,13 +366,37 @@ const increment = async (code: string): Promise<boolean> => {
 };
 
 /**
- * Removes every Url record from the database.
+ * Counts one more event for a key in a window, deleting the key's older windows.
+ */
+const consumeRateLimit = async (key: string, windowStart: Date): Promise<number> => {
+  const ctx = await loadContext();
+  await ensureSchema(ctx);
+
+  const start = windowStart.toISOString();
+  ctx.db.run(`DELETE FROM "RateLimit" WHERE "key" = $key AND "windowStart" < $start;`, {
+    $key: key,
+    $start: start
+  });
+  const [result] = ctx.db.exec(
+    `INSERT INTO "RateLimit" ("key", "windowStart", "count") VALUES ($key, $start, 1)
+     ON CONFLICT ("key", "windowStart") DO UPDATE SET "count" = "count" + 1
+     RETURNING "count";`,
+    { $key: key, $start: start }
+  );
+
+  await persistDatabase(ctx);
+
+  return Number(result.values[0][0]);
+};
+
+/**
+ * Removes every Url record and rate limit count from the database.
  */
 const clear = async (): Promise<void> => {
   const ctx = await loadContext();
   await ensureSchema(ctx);
 
-  ctx.db.exec(`DELETE FROM "Url";`);
+  ctx.db.exec(`DELETE FROM "Url"; DELETE FROM "RateLimit";`);
   await persistDatabase(ctx);
 };
 
@@ -390,6 +421,7 @@ export const createSqliteDriver = async (): Promise<DatabaseDriver> => {
     findByCode: find,
     findByOriginalUrl,
     incrementHits: increment,
+    consumeRateLimit,
     clear,
     getConnection
   };
