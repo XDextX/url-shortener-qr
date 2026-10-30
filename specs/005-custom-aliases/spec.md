@@ -1,6 +1,6 @@
 # Spec 005 — Custom aliases
 
-**Status:** approved
+**Status:** implemented (2026-10-29)
 **Approved:** 2026-10-29 · agent, in the owner's autonomous mode (roadmap item 2) · 74 lines, 6 RF
 **Size:** M
 

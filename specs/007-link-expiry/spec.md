@@ -1,6 +1,6 @@
 # Spec 007 — Link expiry
 
-**Status:** approved
+**Status:** implemented (2026-10-29)
 **Approved:** 2026-10-29 · agent, in the owner's autonomous mode (roadmap item 4) · 75 lines, 7 RF
 **Size:** L
 

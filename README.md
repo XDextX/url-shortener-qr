@@ -7,7 +7,7 @@ Postgres.
 
 **Live demo:** https://url-shortener-qr-three.vercel.app
 
-![The app in its dark theme, showing a shortened GitHub URL, its short link and its QR code](docs/screenshot.jpg)
+![The app in its dark theme: the form with alias and expiry, a link shortened to the alias qr-readme with its QR code, and that link's statistics](docs/screenshot.jpg)
 
 ## Overview
 

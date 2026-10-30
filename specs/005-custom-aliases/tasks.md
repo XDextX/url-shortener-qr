@@ -13,8 +13,13 @@
   `apps/frontend/src/i18n/resources/{en,es}/common.json`, the form test
   Done when: the form tests pass and the always-send injection turns RF-5 red.
 
-- [ ] **T-3 — Document, deploy and check live**
+- [x] **T-3 — Document, deploy and check live**
   Covers: RF-1, RF-6
   Files: `README.md`, `specs/005-custom-aliases/*`
   Done when: the README guard passes; on the live demo an alias link redirects,
   and the field and its messages show in both locales and themes.
+
+  Results on the live demo, 2026-10-29: an alias link answered 201 with the
+  alias as its code and redirected (302); the same alias for another URL got
+  409, and `api` got 400. In the browser the form shows the alias field and its
+  hint, and created `qr-readme`.

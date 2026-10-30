@@ -21,8 +21,14 @@
   Done when: the frontend tests pass and the always-send injection turns RF-6
   red.
 
-- [ ] **T-4 — Document, deploy and check live**
+- [x] **T-4 — Document, deploy and check live**
   Covers: RF-1, RF-7
   Files: `README.md`, `specs/007-link-expiry/*`
   Done when: the README guard passes; the migration applies on deploy; on the
   live demo a link with a lifetime shows its expiry in both locales and themes.
+
+  Results on the live demo, 2026-10-29: the migration applied on deploy; a link
+  created with `1d` answered an `expiresAt` one day later (19 ms earlier than
+  `createdAt` + 1 day, because the expiry is computed before the store stamps
+  the row: within the day's tolerance, noted rather than fixed); `2h` got 400.
+  The form's Expires select and the statistics' Expires row show in the page.
