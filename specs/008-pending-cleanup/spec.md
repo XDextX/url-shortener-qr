@@ -1,6 +1,6 @@
 # Spec 008 — Pending cleanup
 
-**Status:** approved
+**Status:** implemented (2026-10-30)
 **Approved:** 2026-10-30 · owner, with `XDextX` on the licence · 74 lines, 8 RF
 **Size:** M
 

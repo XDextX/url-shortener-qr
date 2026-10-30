@@ -24,7 +24,12 @@
   Files: `LICENSE`, `docs/architecture.md`, `README.md`, `apps/backend/tests/readme.test.ts`
   Done when: the guard passes and both injections turn it red.
 
-- [ ] **T-5 — CI**
+- [x] **T-5 — CI**
   Covers: RF-8
   Files: `.github/workflows/ci.yml`, `.gitignore`, `README.md`
   Done when: a run on GitHub is green, and a run with an injected failing test is red.
+
+  Results, 2026-10-30: run 41072072338 on `6605367` is green. The red run is
+  41071514109 on `f391e6c`, a real `npm test` failure rather than an injected test;
+  the owner accepted it in place of a throwaway pull request. On the live demo the
+  404 and 400 messages answer in English.
