@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import { ApiError, createShortUrl, ShortUrlResponse } from "@api/client";
 import { Button } from "@components/Button";
 
+// Repeated in apps/backend/src/utils/alias-validator.ts: change both together (spec 005).
+const ALIAS_PATTERN = /^[A-Za-z0-9_-]{3,32}$/;
+
 interface Props {
   onSuccess: (payload: ShortUrlResponse) => void;
 }
@@ -42,6 +45,7 @@ const validateUrl = (url: string, t: any): string | null => {
 export const UrlForm = ({ onSuccess }: Props) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState("");
+  const [alias, setAlias] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,15 +59,26 @@ export const UrlForm = ({ onSuccess }: Props) => {
       return;
     }
 
+    const chosenAlias = alias.trim() || undefined;
+    if (chosenAlias && !ALIAS_PATTERN.test(chosenAlias)) {
+      setError(t("form.error.aliasInvalid"));
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const result = await createShortUrl(url.trim());
+      const result = await createShortUrl(url.trim(), chosenAlias);
       onSuccess(result);
       setUrl("");
+      setAlias("");
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
         setError(t("form.error.rateLimited"));
+        return;
+      }
+      if (err instanceof ApiError && err.status === 409) {
+        setError(t("form.error.aliasTaken"));
         return;
       }
       const message = (err as Error).message?.trim();
@@ -85,6 +100,20 @@ export const UrlForm = ({ onSuccess }: Props) => {
           className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
           required
         />
+      </label>
+      <label className="block text-sm font-semibold text-text-primary">
+        {t("form.aliasLabel")}
+        <input
+          type="text"
+          value={alias}
+          onChange={(event) => setAlias(event.target.value)}
+          placeholder={t("form.aliasPlaceholder")}
+          aria-describedby="alias-hint"
+          className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+        />
+        <span id="alias-hint" className="mt-1 block text-xs font-normal text-text-secondary">
+          {t("form.aliasHint")}
+        </span>
       </label>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
       <Button type="submit" loading={loading} loadingText={t("form.loading")}>

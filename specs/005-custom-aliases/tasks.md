@@ -7,7 +7,7 @@
   `apps/backend/src/controllers/url.controller.ts`, `apps/backend/tests/alias.test.ts`
   Done when: the alias tests pass and the skipped-check injection turns RF-3 red.
 
-- [ ] **T-2 — Offer the alias in the form**
+- [x] **T-2 — Offer the alias in the form**
   Covers: RF-5, RF-6
   Files: `apps/frontend/src/api/client.ts`, `apps/frontend/src/components/UrlForm.tsx`,
   `apps/frontend/src/i18n/resources/{en,es}/common.json`, the form test
