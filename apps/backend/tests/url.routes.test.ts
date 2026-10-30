@@ -118,16 +118,56 @@ describe("URL creation errors (spec 002, RF-8)", () => {
   });
 });
 
+describe("API messages in English (spec 008, RF-3)", () => {
+  it.each([
+    ["empty", "", "URL must not be empty."],
+    ["too long", `https://example.com/${"a".repeat(2048)}`, "URL is too long (maximum 2048 characters)."],
+    ["another protocol", "ftp://example.com", "Only HTTP and HTTPS URLs are accepted."],
+    ["malformed", "not a url", "Invalid URL format."]
+  ])("POST /api/v1/urls explains a URL that is %s", async (_case, originalUrl, message) => {
+    const response = await request(app).post("/api/v1/urls").send({ originalUrl }).expect(400);
+
+    expect(response.body.message).toBe(message);
+  });
+
+  it("POST /api/v1/urls has a generic message when the store fails", async () => {
+    await withUnreachableStore(async () => {
+      const response = await request(app)
+        .post("/api/v1/urls")
+        .send({ originalUrl: "https://example.com/down" })
+        .expect(500);
+
+      expect(response.body.message).toBe("Could not create the short link.");
+    });
+  });
+
+  it("GET /api/v1/urls/:code explains an unknown code", async () => {
+    const response = await request(app).get("/api/v1/urls/unknown0").expect(404);
+
+    expect(response.body.message).toBe("No short link has that code.");
+  });
+});
+
 describe("Lookup and redirect errors (spec 003, RF-4)", () => {
   it("GET /:code answers 404 for an unknown code", async () => {
-    await request(app).get("/unknown0").expect(404);
+    const response = await request(app).get("/unknown0").expect(404);
+
+    expect(response.text).toBe("No short link has that code.");
   });
 
   it("GET /api/v1/urls/:code answers 500 when the store fails", async () => {
-    await withUnreachableStore(() => request(app).get("/api/v1/urls/abc12345").expect(500));
+    await withUnreachableStore(async () => {
+      const response = await request(app).get("/api/v1/urls/abc12345").expect(500);
+
+      expect(response.body).toEqual({ message: "Could not look up the short link." });
+    });
   });
 
   it("GET /:code answers 500 when the store fails", async () => {
-    await withUnreachableStore(() => request(app).get("/abc12345").expect(500));
+    await withUnreachableStore(async () => {
+      const response = await request(app).get("/abc12345").expect(500);
+
+      expect(response.text).toBe("Could not follow the short link.");
+    });
   });
 });
