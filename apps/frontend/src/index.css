@@ -24,7 +24,6 @@ body {
   --color-text-primary: 22 32 44;
   --color-text-secondary: 86 98 116;
   --color-accent: 122 93 16;
-  --color-accent-hover: 122 93 16;
   --color-accent-muted: 86 98 116;
   --color-accent-contrast: 255 255 255;
   --color-error: 179 38 30;
@@ -40,7 +39,6 @@ body {
   --color-text-primary: 245 247 250;
   --color-text-secondary: 169 182 205;
   --color-accent: 227 199 112;
-  --color-accent-hover: 227 199 112;
   --color-accent-muted: 169 182 205;
   --color-accent-contrast: 36 57 114;
   --color-error: 242 184 181;

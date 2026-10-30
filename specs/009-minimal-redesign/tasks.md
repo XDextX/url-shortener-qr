@@ -20,7 +20,7 @@ Each visual task stops for the owner's approval in light and dark before its com
   Files: `apps/frontend/src/components/UrlForm.tsx`, `apps/frontend/src/index.css`, the guard
   Done when: approved in both themes, with an error showing.
 
-- [ ] **T-4 — Result card**
+- [x] **T-4 — Result card**
   Covers: RF-3, RF-6
   Files: `apps/frontend/src/components/ResultCard.tsx`, the guard
   Done when: approved in both themes; the QR code stays black on white.

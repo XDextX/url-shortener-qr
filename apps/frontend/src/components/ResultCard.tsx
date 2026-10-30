@@ -55,7 +55,7 @@ export const ResultCard = ({ result, onViewStats }: Props) => {
   const copyLabel = getCopyLabel();
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-6 shadow-sm transition-colors duration-200">
+    <div className="rounded-lg border border-border bg-surface p-6 transition-colors duration-200">
       <h2 className="text-lg font-semibold text-text-primary">{t("result.title")}</h2>
       <p className="mt-2 text-sm text-text-secondary">{result.originalUrl}</p>
 
@@ -65,7 +65,7 @@ export const ResultCard = ({ result, onViewStats }: Props) => {
           href={result.shortUrl}
           target="_blank"
           rel="noreferrer"
-          className="mt-1 block text-accent hover:text-accent-hover hover:underline"
+          className="mt-1 block break-all text-accent hover:underline"
         >
           {result.shortUrl}
         </a>
@@ -86,7 +86,7 @@ export const ResultCard = ({ result, onViewStats }: Props) => {
           ) : null}
         </div>
         {copyState === "error" ? (
-          <p className="mt-1 text-xs text-accent">{t("result.copy.errorHelper")}</p>
+          <p className="mt-1 text-xs text-error">{t("result.copy.errorHelper")}</p>
         ) : null}
       </div>
 
