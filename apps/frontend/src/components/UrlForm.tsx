@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { ApiError, createShortUrl, ShortUrlResponse } from "@api/client";
 import { Button } from "@components/Button";
@@ -13,10 +14,10 @@ interface Props {
 }
 
 /**
- * Valida que una URL esté en formato correcto.
+ * Checks a URL before calling the API, so these errors are in the visitor's language.
  * @returns Error message if invalid, null if valid
  */
-const validateUrl = (url: string, t: any): string | null => {
+const validateUrl = (url: string, t: TFunction): string | null => {
   const trimmed = url.trim();
 
   // Check if empty
@@ -85,8 +86,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
         setError(t("form.error.aliasTaken"));
         return;
       }
-      const message = (err as Error).message?.trim();
-      setError(message && message.length > 0 ? message : t("form.error.server"));
+      setError(t("form.error.server"));
     } finally {
       setLoading(false);
     }
