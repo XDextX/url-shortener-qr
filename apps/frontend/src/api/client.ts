@@ -60,7 +60,7 @@ export const createShortUrl = async (
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new ApiError(errorBody.message ?? "Error al crear el short URL", response.status);
+    throw new ApiError(errorBody.message ?? "Could not create the short link.", response.status);
   }
 
   return response.json();

@@ -1,8 +1,3 @@
-/**
- * Valida que una URL sea válida, segura y en formato correcto.
- * Se ejecuta antes de guardar en la BD para prevenir URLs maliciosas.
- */
-
 const MAX_URL_LENGTH = 2048;
 
 /**
@@ -13,35 +8,29 @@ export class InvalidUrlError extends Error {
 }
 
 /**
- * Valida que una URL sea válida, segura y en formato correcto.
- * @param url - URL a validar
- * @throws InvalidUrlError si la URL no es válida
+ * Checks a URL before it is stored: present, within the length limit, well formed, HTTP or HTTPS.
+ * @param url - the URL to check
+ * @throws InvalidUrlError when it is not acceptable
  */
 export function validateUrl(url: string | undefined): asserts url is string {
-  // 1. No vacío
   if (!url?.trim()) {
-    throw new InvalidUrlError("URL no puede estar vacío");
+    throw new InvalidUrlError("URL must not be empty.");
   }
 
-  // 2. Longitud máxima (URLs muy largas pueden ser maliciosas o problemáticas)
   if (url.length > MAX_URL_LENGTH) {
-    throw new InvalidUrlError(`URL demasiado larga (máximo ${MAX_URL_LENGTH} caracteres)`);
+    throw new InvalidUrlError(`URL is too long (maximum ${MAX_URL_LENGTH} characters).`);
   }
 
-  // 3. Formato válido usando URL API
   try {
     const urlObj = new URL(url);
 
-    // 4. Solo HTTP/HTTPS permitidos
     if (!["http:", "https:"].includes(urlObj.protocol)) {
-      throw new InvalidUrlError("Solo se aceptan URLs HTTP/HTTPS");
+      throw new InvalidUrlError("Only HTTP and HTTPS URLs are accepted.");
     }
   } catch (error) {
-    // Si el error es uno que elegimos lanzar, re-lazarlo
     if (error instanceof InvalidUrlError) {
       throw error;
     }
-    // Si es error de URL() constructor, significa formato inválido
-    throw new InvalidUrlError("URL inválida. Verifica el formato.");
+    throw new InvalidUrlError("Invalid URL format.");
   }
 }

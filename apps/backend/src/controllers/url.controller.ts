@@ -10,7 +10,8 @@ import { InvalidUrlError, validateUrl } from "../utils/url-validator.js";
 import { checkCreationQuota } from "../services/rate-limit.service.js";
 import { loadEnvConfig } from "../config/env.js";
 
-const CREATE_FAILED_MESSAGE = "No fue posible crear la URL";
+const CREATE_FAILED_MESSAGE = "Could not create the short link.";
+const NOT_FOUND_MESSAGE = "No short link has that code.";
 
 /**
  * Lets a link creation through while its client is under the limit (spec 004).
@@ -68,13 +69,14 @@ export const getUrlByCodeHandler = async (req: Request, res: Response): Promise<
     const result = await findOriginalUrl(code);
 
     if (!result) {
-      res.status(404).json({ message: "Codigo no encontrado" });
+      res.status(404).json({ message: NOT_FOUND_MESSAGE });
       return;
     }
 
     res.json(result);
   } catch (error) {
-    res.status(500).json({ message: "No fue posible recuperar la URL", error: (error as Error).message });
+    console.error(error);
+    res.status(500).json({ message: "Could not look up the short link." });
   }
 };
 
@@ -85,7 +87,7 @@ export const redirectToOriginalHandler = async (req: Request, res: Response): Pr
     const resolved = await resolveOriginalUrl(code);
 
     if (!resolved) {
-      res.status(404).send("No existe un short URL con ese codigo");
+      res.status(404).send(NOT_FOUND_MESSAGE);
       return;
     }
     if (resolved === "expired") {
@@ -95,6 +97,7 @@ export const redirectToOriginalHandler = async (req: Request, res: Response): Pr
 
     res.redirect(302, resolved.url);
   } catch (error) {
-    res.status(500).send(`Error al redirigir: ${(error as Error).message}`);
+    console.error(error);
+    res.status(500).send("Could not follow the short link.");
   }
 };

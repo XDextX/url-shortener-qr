@@ -131,6 +131,17 @@ describe("README (spec 003)", () => {
     expect(items.length).toBeLessThanOrEqual(4);
   });
 
+  it("ships the licence it claims (spec 008, RF-5)", () => {
+    const licence = join(ROOT, "LICENSE");
+    expect(existsSync(licence)).toBe(true);
+    expect(readFileSync(licence, "utf8")).toMatch(/^MIT License/);
+  });
+
+  it("names only paths that exist in the architecture document (spec 008, RF-6)", () => {
+    const architecture = readFileSync(join(ROOT, "docs", "architecture.md"), "utf8");
+    expect(repoPaths(architecture).filter((path) => !existsSync(join(ROOT, path)))).toEqual([]);
+  });
+
   it("stays short enough to skim (NFR: at most 250 lines)", () => {
     expect(README.split("\n").length).toBeLessThanOrEqual(250);
   });

@@ -155,7 +155,8 @@ npm run build
 ```
 
 `npm test` runs every workspace's suite with Vitest; `npm run build` compiles
-every workspace. Both must pass for a change to count as done.
+every workspace. Both must pass for a change to count as done, and CI runs them
+with the linter on every push and pull request to `main`.
 
 The database contract suite always runs against SQLite in memory. To run it
 against Postgres too, set `TEST_DATABASE_URL` to a disposable database, such as
@@ -190,7 +191,7 @@ Preview deployments share the production database.
 
 ## License and contact
 
-Released under the MIT licence.
+Released under the [MIT licence](LICENSE).
 
 - Issues: https://github.com/XDextX/url-shortener-qr/issues
 - Email: germonram@gmail.com

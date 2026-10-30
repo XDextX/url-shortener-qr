@@ -51,6 +51,14 @@ describe("UrlForm", () => {
     expect(await screen.findByText(/too many links in a short time/i)).toBeInTheDocument();
   });
 
+  it("shows the translated error, not the API's text, on a server failure (spec 008, RF-4)", async () => {
+    vi.mocked(createShortUrl).mockRejectedValueOnce(new ApiError("Could not create the short link.", 500));
+    await submit();
+
+    expect(await screen.findByText(/error processing your url/i)).toBeInTheDocument();
+    expect(screen.queryByText(/could not create/i)).not.toBeInTheDocument();
+  });
+
   it("sends the alias when one is typed, and none otherwise (spec 005, RF-5)", async () => {
     vi.mocked(createShortUrl).mockResolvedValue(sample);
 
