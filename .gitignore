@@ -12,6 +12,7 @@ packages/database/dist/
 *.db
 apps/frontend/tsconfig.node.tsbuildinfo
 apps/frontend/vite.config.js
+apps/frontend/vite.config.d.ts
 
 # Environment files
 .env

@@ -137,7 +137,7 @@ The API listens on http://localhost:3000 and the client on
 http://localhost:5173. Locally the store is SQLite, so no database server is
 needed.
 
-The variables that matter, in `apps/backend/.env`:
+The variables that matter, in the backend's `.env` file:
 
 - `PORT`: the API's port, `3000` by default.
 - `BASE_URL`: the origin short links are built on; locally
