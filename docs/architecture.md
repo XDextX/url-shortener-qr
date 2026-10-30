@@ -1,37 +1,57 @@
-# Arquitectura propuesta
+# Architecture
 
-## Capas (apps/backend)
+An npm workspaces monorepo: an Express API, a React client and a database package,
+deployed as one Vercel project. The layering rule is in `docs/constitution.md`.
 
-- **Rutas (`apps/backend/src/routes`)**: definen endpoints HTTP y delegan la logica.
-- **Controladores (`apps/backend/src/controllers`)**: validan peticiones y orquestan servicios.
-- **Servicios (`apps/backend/src/services`)**: encapsulan la logica de negocio y coordinan repositorios/utilidades.
-- **Repositorios (`apps/backend/src/repositories`)**: se comunican con el paquete de base de datos, que resuelve el driver configurado (SQLite por defecto).
-- **Utilidades (`apps/backend/src/utils`)**: helpers como el generador de codigos QR.
-- **Configuracion (`apps/backend/src/config`)**: carga variables de entorno compartidas.
+## Backend (`apps/backend`)
 
-## Flujo principal
+Each layer only calls the one below it:
 
-1. Cliente envia una URL larga a `POST /api/v1/urls`.
-2. El servicio genera un codigo corto (`nanoid`), lo persiste en SQLite y construye la URL corta.
-3. Se genera un QR (base64) asociado y se devuelve en la respuesta.
-4. `GET /api/v1/urls/:code` recupera la URL original y regenera el QR.
-5. `GET /:code` redirige al usuario y registra el hit (`hits` se incrementa en la base de datos).
+- **Routes** (`apps/backend/src/routes`): map HTTP paths to controllers.
+- **Controllers** (`apps/backend/src/controllers`): read the request, pick the status
+  code, and enforce the creation limit.
+- **Services** (`apps/backend/src/services`): the rules: which code a link gets, when
+  it expires, whether a client is over the limit.
+- **Repositories** (`apps/backend/src/repositories`): the only callers of the database
+  package.
 
-## Frontend (apps/frontend)
+Beside them, `apps/backend/src/utils` validates URLs and aliases and generates QR
+codes, and `apps/backend/src/config` reads the environment.
 
-- SPA en React + Vite que consume la API.
-- Formulario para crear URLs cortas y visualizar QR/links resultantes.
-- Configurable mediante `VITE_API_BASE_URL` para apuntar a distintos ambientes.
+## Main flows
 
-## Paquete de base de datos (packages/database)
+1. `POST /api/v1/urls`: the limit counts the client under a hash of its IP; the URL,
+   alias and lifetime are validated; the link is stored or the existing one reused; the
+   answer carries the short URL and a QR code as a data URL.
+2. `GET /:code`: an expired link answers 410; otherwise the hit is counted and the
+   answer is a 302 to the original URL.
+3. `GET /api/v1/urls/:code`: the link with its hits, creation date and expiry. It does
+   not count as a hit.
 
-- Conecta con SQLite por defecto (`DATABASE_DRIVER=sqlite`, `DATABASE_URL` configurable a otras rutas o `:memory:`).
-- Permite registrar drivers alternativos para escalar a otros motores manteniendo la misma API (`ensureDatabase`, `insertUrl`, `findUrlByCode`, etc.).
-- Centraliza la inicializacion del esquema y la conexion para reutilizarla en workers, cron jobs, etc.
+The README documents every route and status.
 
-## Proximos pasos
+## Database package (`packages/database`)
 
-- Agregar campos adicionales (expiracion, owner, tags) y generar nuevas migraciones.
-- Exponer metricas avanzadas (hits por periodo) y endpoints de estadisticas.
-- Integrar autenticacion/roles para administrar URLs creadas.
-- Automatizar pipelines CI/CD que ejecuten `lint`, `test` y `db:deploy` antes de desplegar.
+One `DatabaseDriver` contract, chosen by `DATABASE_DRIVER`:
+
+- `sqlite` (default): sql.js, for local development and tests. It creates its own
+  tables, and adds columns that older local files lack.
+- `postgres`: Prisma over Postgres, used in production on Neon. The schema is
+  `packages/database/prisma/schema.prisma` and changes only through
+  `packages/database/prisma/migrations`, applied by the deploy.
+
+`packages/database/tests/driver-contract.test.ts` runs the same cases against both.
+
+## Frontend (`apps/frontend`)
+
+A React + Vite single page: the form, the result with its QR code, and the statistics
+lookup. All visible text goes through i18next, in English and Spanish, and colours come
+from theme variables, in light and dark. In a production build it calls the API on its
+own origin.
+
+## Deployment
+
+`vercel.json` serves the built client as static files and rewrites `/api/*`, `/health`
+and `/<code>` to the function in `api/index.ts`, which runs the compiled Express app. A
+serverless instance keeps nothing between requests, so the rate limit's counts live in
+the database too.
