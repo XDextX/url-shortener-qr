@@ -7,7 +7,7 @@
   Done when: the contract cases pass on SQLite and on Neon, and the mapping
   injection turns them red.
 
-- [ ] **T-2 — Expire links in the API**
+- [x] **T-2 — Expire links in the API**
   Covers: RF-1, RF-2, RF-3, RF-4, RF-5
   Files: `apps/backend/src/{services/url.service,controllers/url.controller,repositories/url.repository}.ts`,
   `apps/backend/tests/expiry.test.ts`

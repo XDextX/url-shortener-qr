@@ -33,14 +33,18 @@ export const limitCreationHandler = async (req: Request, res: Response, next: Ne
 };
 
 export const createShortUrlHandler = async (req: Request, res: Response): Promise<void> => {
-  const { originalUrl, alias } = req.body as { originalUrl?: string; alias?: string };
+  const { originalUrl, alias, expiresIn } = req.body as {
+    originalUrl?: string;
+    alias?: string;
+    expiresIn?: string;
+  };
 
   try {
     validateUrl(originalUrl);
     if (alias !== undefined) {
       validateAlias(String(alias));
     }
-    const payload = await createShortUrl(originalUrl, alias);
+    const payload = await createShortUrl(originalUrl, alias, expiresIn === undefined ? undefined : String(expiresIn));
     res.status(201).json(payload);
   } catch (error) {
     if (error instanceof InvalidUrlError) {
@@ -78,14 +82,18 @@ export const redirectToOriginalHandler = async (req: Request, res: Response): Pr
   const { code } = req.params;
 
   try {
-    const originalUrl = await resolveOriginalUrl(code);
+    const resolved = await resolveOriginalUrl(code);
 
-    if (!originalUrl) {
+    if (!resolved) {
       res.status(404).send("No existe un short URL con ese codigo");
       return;
     }
+    if (resolved === "expired") {
+      res.status(410).send("This short link has expired.");
+      return;
+    }
 
-    res.redirect(302, originalUrl);
+    res.redirect(302, resolved.url);
   } catch (error) {
     res.status(500).send(`Error al redirigir: ${(error as Error).message}`);
   }
