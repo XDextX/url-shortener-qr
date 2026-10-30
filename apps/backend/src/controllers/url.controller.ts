@@ -1,6 +1,30 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { createShortUrl, findOriginalUrl, resolveOriginalUrl } from "../services/url.service.js";
 import { InvalidUrlError, validateUrl } from "../utils/url-validator.js";
+import { checkCreationQuota } from "../services/rate-limit.service.js";
+import { loadEnvConfig } from "../config/env.js";
+
+const CREATE_FAILED_MESSAGE = "No fue posible crear la URL";
+
+/**
+ * Lets a link creation through while its client is under the limit (spec 004).
+ * Answers 429 with Retry-After over the limit, and 500 when the count cannot be read.
+ */
+export const limitCreationHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const exceeded = await checkCreationQuota(req.ip ?? "unknown", Date.now(), loadEnvConfig().rateLimitMax);
+    if (exceeded) {
+      res.setHeader("Retry-After", String(exceeded.retryAfter));
+      res.status(429).json({ message: `Too many links created. Try again in ${exceeded.retryAfter} seconds.` });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: CREATE_FAILED_MESSAGE });
+    return;
+  }
+  next();
+};
 
 export const createShortUrlHandler = async (req: Request, res: Response): Promise<void> => {
   const { originalUrl } = req.body as { originalUrl?: string };
@@ -16,7 +40,7 @@ export const createShortUrlHandler = async (req: Request, res: Response): Promis
     }
     // A store failure: the internal error text stays in the server log, never in the response.
     console.error(error);
-    res.status(500).json({ message: "No fue posible crear la URL" });
+    res.status(500).json({ message: CREATE_FAILED_MESSAGE });
   }
 };
 

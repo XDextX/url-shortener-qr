@@ -6,6 +6,8 @@ import { loadEnvConfig } from "./config/env.js";
 
 export const createApp = (): Application => {
   const app = express();
+  // One proxy hop (Vercel's edge), so req.ip is the client it reports, not an address the client chose.
+  app.set("trust proxy", 1);
   const { frontendUrl } = loadEnvConfig();
 
   // Configure CORS to only allow requests from the configured frontend URL

@@ -77,6 +77,7 @@ registerDatabaseDriver("unreachable", async () => ({
   findByCode: unreachable,
   findByOriginalUrl: unreachable,
   incrementHits: unreachable,
+  consumeRateLimit: unreachable,
   clear: unreachable
 }));
 

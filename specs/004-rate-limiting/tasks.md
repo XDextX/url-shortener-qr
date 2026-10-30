@@ -8,7 +8,7 @@
   Done when: the contract cases pass on SQLite (and on Prisma with
   `TEST_DATABASE_URL`), and the constant-count injection turns them red.
 
-- [ ] **T-2 — Limit link creation in the backend**
+- [x] **T-2 — Limit link creation in the backend**
   Covers: RF-1, RF-2, RF-3, RF-6
   Files: `apps/backend/src/{app.ts,config/env.ts,routes/url.routes.ts}`,
   `apps/backend/src/services/rate-limit.service.ts`,
