@@ -1,6 +1,6 @@
 # Tasks 005 — Custom aliases
 
-- [ ] **T-1 — Accept an alias in the API**
+- [x] **T-1 — Accept an alias in the API**
   Covers: RF-1, RF-2, RF-3, RF-4
   Files: `apps/backend/src/utils/alias-validator.ts`,
   `apps/backend/src/services/url.service.ts`,
