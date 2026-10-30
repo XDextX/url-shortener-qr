@@ -1,8 +1,8 @@
 # 🔗 URL Shortener with QR Code
 
-Un servicio fullstack para acortar URLs y generar códigos QR de forma instantánea. Frontend moderno con tema oscuro/claro e internacionalización, backend eficiente con Express.js y almacenamiento SQLite.
+Un servicio fullstack para acortar URLs y generar códigos QR de forma instantánea. Frontend moderno con tema oscuro/claro e internacionalización, backend con Express.js y almacenamiento en Postgres (Neon, vía Prisma) en producción y SQLite en local.
 
-> **Status**: ✅ Funcional | 🚀 Pronto en Vercel | 📝 Documentado
+> **Demo**: https://url-shortener-qr-three.vercel.app
 
 ---
 
@@ -15,7 +15,7 @@ Un servicio fullstack para acortar URLs y generar códigos QR de forma instantá
 - ⚡ **Sin autenticación**: Úsalo al instante, sin login  
 - 📊 **Contador de hits**: Registra cada redirección  
 - 🔄 **Deduplicación**: La misma URL original = mismo código corto  
-- 🚀 **Pronto a producción**: Deployment ready para Vercel  
+- 🚀 **En producción**: desplegado en Vercel con Postgres en Neon  
 
 ---
 
@@ -63,13 +63,17 @@ url-shortener-qr/
 │   │   └── vite.config.ts    # Configuración Vite
 │
 ├── packages/
-│   └── database/             # Capa BD (sql.js)
+│   └── database/             # Capa BD con drivers intercambiables
 │       ├── src/
 │       │   ├── index.ts      # API pública
 │       │   ├── contracts.ts  # Interfaces
-│       │   └── sqlite-driver.ts # Driver SQLite
-│       └── data/
-│           └── dev.db        # Base de datos
+│       │   ├── sqlite-driver.ts # Driver SQLite (sql.js), local y tests
+│       │   └── prisma-driver.ts # Driver Postgres (Prisma), producción
+│       ├── data/
+│       │   └── dev.db        # Base SQLite local
+│       └── prisma/
+│           ├── schema.prisma # Esquema de producción
+│           └── migrations/   # Migraciones
 │
 ├── scripts/
 │   └── copy-frontend-dist.mjs # Build script
@@ -80,7 +84,7 @@ url-shortener-qr/
 **Workspaces:**
 - `apps/backend`: API REST que acorta URLs, genera QR y redirige (`GET /:code`)
 - `apps/frontend`: SPA que consume la API y muestra el QR generado
-- `packages/database`: Utilidades compartidas para SQLite con soporte para drivers modulares
+- `packages/database`: acceso a datos con drivers intercambiables: SQLite en local, Postgres (Prisma) en producción
 
 ---
 
@@ -489,15 +493,11 @@ export const Button = ({ children, onClick, loading }: ButtonProps) => {
 
 ### Cambiar Driver
 
-El proyecto soporta drivers modulares. Para agregar PostgreSQL:
-
-1. Crea `packages/database/src/postgres-driver.ts`
-2. Implementa la interfaz `DatabaseDriver`
-3. Registra en env: `DATABASE_DRIVER=postgres`
+El proyecto soporta drivers modulares; se eligen con `DATABASE_DRIVER`.
 
 **Drivers disponibles:**
-- `sqlite` (default) - En memoria
-- PostgreSQL, MySQL (fácil de agregar)
+- `sqlite` (default): sql.js sobre `packages/database/data/dev.db`, para desarrollo y tests
+- `postgres`: Prisma sobre Postgres (Neon en producción); necesita `DATABASE_URL`
 
 ### Inspeccionar BD
 
