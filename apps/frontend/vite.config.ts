@@ -21,7 +21,9 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       globals: true,
-      setupFiles: path.resolve(__dirname, "src/tests/setup.ts")
+      setupFiles: path.resolve(__dirname, "src/tests/setup.ts"),
+      // Otherwise CSS imports are empty in tests, and the design guard reads index.css.
+      css: true
     },
     server: {
       port: Number(env.VITE_PORT) || 5173

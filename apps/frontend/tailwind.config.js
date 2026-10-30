@@ -7,10 +7,12 @@ export default {
         background: "rgb(var(--color-background) / <alpha-value>)",
         surface: "rgb(var(--color-surface) / <alpha-value>)",
         border: "rgb(var(--color-border) / <alpha-value>)",
+        "control-border": "rgb(var(--color-control-border) / <alpha-value>)",
+        error: "rgb(var(--color-error) / <alpha-value>)",
+        focus: "rgb(var(--color-focus) / <alpha-value>)",
         "text-primary": "rgb(var(--color-text-primary) / <alpha-value>)",
         "text-secondary": "rgb(var(--color-text-secondary) / <alpha-value>)",
         accent: "rgb(var(--color-accent) / <alpha-value>)",
-        "accent-hover": "rgb(var(--color-accent-hover) / <alpha-value>)",
         "accent-muted": "rgb(var(--color-accent-muted) / <alpha-value>)",
         "accent-contrast": "rgb(var(--color-accent-contrast) / <alpha-value>)"
       }

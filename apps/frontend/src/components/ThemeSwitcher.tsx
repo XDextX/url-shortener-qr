@@ -16,7 +16,7 @@ export const ThemeSwitcher = () => {
       <select
         value={theme}
         onChange={handleChange}
-        className="rounded-md border border-border bg-surface px-2 py-1 text-sm text-text-primary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+        className="field mt-0 w-auto px-2 py-1 text-sm"
       >
         {themeList.map((entry) => (
           <option key={entry.value} value={entry.value}>

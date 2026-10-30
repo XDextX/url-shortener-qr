@@ -62,7 +62,7 @@ export const LinkStats = ({ requestedCode }: Props) => {
   };
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-6 shadow-sm transition-colors duration-200">
+    <section className="rounded-lg border border-border bg-surface p-6 transition-colors duration-200">
       <h2 className="text-lg font-semibold text-text-primary">{t("stats.title")}</h2>
       <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-text-primary">
@@ -72,7 +72,7 @@ export const LinkStats = ({ requestedCode }: Props) => {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={t("stats.placeholder")}
-            className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+            className="field"
           />
         </label>
         <Button type="submit" loading={state.status === "loading"} loadingText={t("stats.loading")}>
@@ -98,8 +98,8 @@ export const LinkStats = ({ requestedCode }: Props) => {
           </dd>
         </dl>
       ) : null}
-      {state.status === "notFound" ? <p className="mt-4 text-sm text-accent">{t("stats.notFound")}</p> : null}
-      {state.status === "error" ? <p className="mt-4 text-sm text-accent">{t("stats.error")}</p> : null}
+      {state.status === "notFound" ? <p className="mt-4 text-sm text-error">{t("stats.notFound")}</p> : null}
+      {state.status === "error" ? <p className="mt-4 text-sm text-error">{t("stats.error")}</p> : null}
     </section>
   );
 };
