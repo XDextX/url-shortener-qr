@@ -65,6 +65,29 @@ const contract = (name: string, create: () => Promise<DatabaseDriver>, skip = fa
       expect(await driver.incrementHits("missing0")).toBe(false);
     });
 
+    it("stores no expiry unless one is given (spec 007)", async () => {
+      const record = await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a" });
+
+      expect(record.expiresAt).toBeNull();
+      expect((await driver.findByCode("abc12345"))?.expiresAt).toBeNull();
+    });
+
+    it("stores and renews an expiry (spec 007)", async () => {
+      const first = new Date("2026-01-01T01:00:00.000Z");
+      const renewed = new Date("2026-02-01T01:00:00.000Z");
+      const record = await driver.insert({ code: "abc12345", originalUrl: "https://example.com/a", expiresAt: first });
+
+      expect(record.expiresAt?.toISOString()).toBe(first.toISOString());
+      expect((await driver.findByCode("abc12345"))?.expiresAt?.toISOString()).toBe(first.toISOString());
+
+      expect((await driver.renewExpiry("abc12345", renewed))?.expiresAt?.toISOString()).toBe(renewed.toISOString());
+      expect((await driver.findByOriginalUrl("https://example.com/a"))?.expiresAt?.toISOString()).toBe(
+        renewed.toISOString()
+      );
+      expect((await driver.renewExpiry("abc12345", null))?.expiresAt).toBeNull();
+      expect(await driver.renewExpiry("missing0", renewed)).toBeNull();
+    });
+
     it("counts per key and window, restarting in a new window (spec 004)", async () => {
       const first = new Date("2026-01-01T00:00:00.000Z");
       const next = new Date("2026-01-01T00:01:00.000Z");

@@ -1,6 +1,6 @@
 # Tasks 007 — Link expiry
 
-- [ ] **T-1 — Store an expiry in both drivers**
+- [x] **T-1 — Store an expiry in both drivers**
   Covers: RF-1, RF-5
   Files: `packages/database/src/*`, `packages/database/prisma/schema.prisma`,
   a new migration, `packages/database/tests/driver-contract.test.ts`

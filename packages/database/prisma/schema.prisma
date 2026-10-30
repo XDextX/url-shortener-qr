@@ -18,6 +18,8 @@ model Url {
   hits        Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  // When the link stops redirecting (spec 007); null when it never does.
+  expiresAt   DateTime?
 
   @@map("Url")
 }

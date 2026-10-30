@@ -9,6 +9,8 @@ export interface UrlRecord {
   hits: number;
   createdAt: Date;
   updatedAt: Date;
+  /** When the link stops redirecting (spec 007); null when it never does. */
+  expiresAt: Date | null;
 }
 
 /**
@@ -18,6 +20,7 @@ export interface InsertUrlInput {
   code: string;
   originalUrl: string;
   qrSvg?: string | null;
+  expiresAt?: Date | null;
 }
 
 /**
@@ -49,6 +52,14 @@ export interface DatabaseDriver {
    * Increments the number of hits for a stored URL.
    */
   incrementHits(code: string): Promise<boolean>;
+
+  /**
+   * Sets a link's expiry (spec 007).
+   * @param code - the link's code
+   * @param expiresAt - the new expiry, or null for none
+   * @returns the updated record, or null when no link has that code
+   */
+  renewExpiry(code: string, expiresAt: Date | null): Promise<UrlRecord | null>;
 
   /**
    * Counts one more event for a key in a fixed window, forgetting the key's older windows.
