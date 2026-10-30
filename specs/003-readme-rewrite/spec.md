@@ -1,6 +1,6 @@
 # Spec 003 — README rewrite
 
-**Status:** approved
+**Status:** implemented (2026-10-29)
 **Approved:** 2026-10-29 · owner, after the roadmap question was settled · 94 lines, 8 RF
 **Size:** M
 
