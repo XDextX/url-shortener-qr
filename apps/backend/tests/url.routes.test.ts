@@ -67,23 +67,36 @@ describe("URL routes", () => {
   });
 });
 
+const unreachable = async (): Promise<never> => {
+  throw new Error("connect ECONNREFUSED internal-host:5432");
+};
+
+registerDatabaseDriver("unreachable", async () => ({
+  ensure: unreachable,
+  insert: unreachable,
+  findByCode: unreachable,
+  findByOriginalUrl: unreachable,
+  incrementHits: unreachable,
+  clear: unreachable
+}));
+
+/**
+ * Runs a request with every store call failing, then restores the previous driver.
+ * @param run - the request to make while the store is down
+ */
+const withUnreachableStore = async (run: () => Promise<unknown>): Promise<void> => {
+  const previous = getActiveDatabaseDriverName();
+  setDatabaseDriver("unreachable");
+  try {
+    await run();
+  } finally {
+    setDatabaseDriver(previous);
+  }
+};
+
 describe("URL creation errors (spec 002, RF-8)", () => {
   it("POST /api/v1/urls answers 500 with only a message when the store fails", async () => {
-    const unreachable = async (): Promise<never> => {
-      throw new Error("connect ECONNREFUSED internal-host:5432");
-    };
-    registerDatabaseDriver("unreachable", async () => ({
-      ensure: unreachable,
-      insert: unreachable,
-      findByCode: unreachable,
-      findByOriginalUrl: unreachable,
-      incrementHits: unreachable,
-      clear: unreachable
-    }));
-    const previous = getActiveDatabaseDriverName();
-    setDatabaseDriver("unreachable");
-
-    try {
+    await withUnreachableStore(async () => {
       const response = await request(app)
         .post("/api/v1/urls")
         .send({ originalUrl: "https://example.com/down" })
@@ -91,9 +104,7 @@ describe("URL creation errors (spec 002, RF-8)", () => {
 
       expect(Object.keys(response.body)).toEqual(["message"]);
       expect(response.body.message).not.toContain("ECONNREFUSED");
-    } finally {
-      setDatabaseDriver(previous);
-    }
+    });
   });
 
   it("POST /api/v1/urls still answers 400 for an invalid URL", async () => {
@@ -103,5 +114,19 @@ describe("URL creation errors (spec 002, RF-8)", () => {
       .expect(400);
 
     expect(response.body.message).toBeTruthy();
+  });
+});
+
+describe("Lookup and redirect errors (spec 003, RF-4)", () => {
+  it("GET /:code answers 404 for an unknown code", async () => {
+    await request(app).get("/unknown0").expect(404);
+  });
+
+  it("GET /api/v1/urls/:code answers 500 when the store fails", async () => {
+    await withUnreachableStore(() => request(app).get("/api/v1/urls/abc12345").expect(500));
+  });
+
+  it("GET /:code answers 500 when the store fails", async () => {
+    await withUnreachableStore(() => request(app).get("/abc12345").expect(500));
   });
 });

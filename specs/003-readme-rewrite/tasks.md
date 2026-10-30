@@ -1,6 +1,6 @@
 # Tasks 003 — README rewrite
 
-- [ ] **T-1 — Cover the error statuses the README will document**
+- [x] **T-1 — Cover the error statuses the README will document**
   Covers: RF-4
   Files: `apps/backend/tests/url.routes.test.ts`
   Done when: backend tests assert `GET /:code` 404 for an unknown code, and
