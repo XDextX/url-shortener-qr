@@ -1,386 +1,150 @@
-# 🔗 URL Shortener with QR Code
+# URL Shortener with QR codes
 
-Un servicio fullstack para acortar URLs y generar códigos QR de forma instantánea. Frontend moderno con tema oscuro/claro e internacionalización, backend con Express.js y almacenamiento en Postgres (Neon, vía Prisma) en producción y SQLite en local.
+A full-stack URL shortener: paste a long URL, get a short link and a QR code
+ready to download or share. A layered Express API with a pluggable database
+driver behind a React + Vite client, deployed as one Vercel project on
+Postgres.
 
-> **Demo**: https://url-shortener-qr-three.vercel.app
+**Live demo:** https://url-shortener-qr-three.vercel.app
 
----
+![The app in its dark theme, showing a shortened GitHub URL, its short link and its QR code](docs/screenshot.jpg)
 
-## ✨ Características
+## Overview
 
-- 🔗 **Acortador de URLs**: Genera códigos cortos y únicos  
-- 🎨 **Códigos QR**: QR automático para cada URL acortada  
-- 🌍 **Multi-idioma**: Soporte para English y Español (i18n)  
-- 🌙 **Tema oscuro/claro**: Personalización por preferencia del usuario  
-- ⚡ **Sin autenticación**: Úsalo al instante, sin login  
-- 📊 **Contador de hits**: Registra cada redirección  
-- 🔄 **Deduplicación**: La misma URL original = mismo código corto  
-- 🚀 **En producción**: desplegado en Vercel con Postgres en Neon  
+- Shortens any `http` or `https` URL to an 8-character code.
+- Generates a QR code for every short link.
+- Returns the existing code when the same URL is shortened twice.
+- Counts every redirect as a hit.
+- English and Spanish interface, light and dark theme.
+- No sign-up: open the page and use it.
 
----
+## Architecture
 
-## 📋 Tabla de Contenidos
-
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Requisitos](#-requisitos-previos)
-- [Inicio Rápido](#-inicio-rápido)
-- [Desarrollo](#-desarrollo)
-- [API REST](#-api-rest)
-- [Configuración](#-configuración)
-- [Testing](#-testing)
-- [Deploy](#-deploy)
-- [Troubleshooting](#-troubleshooting)
-
----
-
-## 🏗️ Estructura del Proyecto
+An npm workspaces monorepo with three packages:
 
 ```
-url-shortener-qr/
-├── apps/
-│   ├── backend/              # Express API (TypeScript)
-│   │   ├── src/
-│   │   │   ├── app.ts        # Configuración Express
-│   │   │   ├── server.ts     # Punto de entrada
-│   │   │   ├── config/       # Variables de entorno
-│   │   │   ├── controllers/  # HTTP Handlers
-│   │   │   ├── services/     # Lógica de negocio
-│   │   │   ├── repositories/ # Acceso a datos
-│   │   │   ├── routes/       # Definición de rutas
-│   │   │   └── utils/        # Utilidades (QR, etc)
-│   │   ├── tests/            # Tests unitarios
-│   │   └── dist/             # Output compilado
-│   │
-│   ├── frontend/             # React + Vite
-│   │   ├── src/
-│   │   │   ├── components/   # Componentes React
-│   │   │   ├── api/          # Cliente HTTP
-│   │   │   ├── theme/        # Sistema de temas
-│   │   │   ├── i18n/         # Traducciones
-│   │   │   ├── App.tsx       # Componente raíz
-│   │   │   └── main.tsx      # Entry point
-│   │   ├── dist/             # Output build
-│   │   └── vite.config.ts    # Configuración Vite
-│
-├── packages/
-│   └── database/             # Capa BD con drivers intercambiables
-│       ├── src/
-│       │   ├── index.ts      # API pública
-│       │   ├── contracts.ts  # Interfaces
-│       │   ├── sqlite-driver.ts # Driver SQLite (sql.js), local y tests
-│       │   └── prisma-driver.ts # Driver Postgres (Prisma), producción
-│       ├── data/
-│       │   └── dev.db        # Base SQLite local
-│       └── prisma/
-│           ├── schema.prisma # Esquema de producción
-│           └── migrations/   # Migraciones
-│
-├── scripts/
-│   └── copy-frontend-dist.mjs # Build script
-├── package.json              # Monorepo config
-└── README.md                 # Este archivo
+apps/backend        Express API (TypeScript)
+apps/frontend       React + Vite client, i18next, Tailwind
+packages/database   data access behind a driver registry
+api/index.ts        the Vercel function that serves the API
 ```
 
-**Workspaces:**
-- `apps/backend`: API REST que acorta URLs, genera QR y redirige (`GET /:code`)
-- `apps/frontend`: SPA que consume la API y muestra el QR generado
-- `packages/database`: acceso a datos con drivers intercambiables: SQLite en local, Postgres (Prisma) en producción
+The backend is layered, and each layer only calls the one below it:
+routes → controllers → services → repositories → `@url-shortener/database`.
+Only the database package talks to a database driver.
 
----
+The database package exposes one `DatabaseDriver` contract and picks the
+implementation from `DATABASE_DRIVER`:
 
-## 📋 Requisitos Previos
+- `sqlite` (default): sql.js, for local development and tests. No server needed.
+- `postgres`: Prisma over Postgres, used in production on Neon. The schema
+  lives in `packages/database/prisma/schema.prisma` and changes only through
+  migrations.
 
-- **Node.js**: v18+
-- **npm**: v9+
-- **Git**: Para clonar el repositorio
+Both drivers pass the same contract test suite.
 
-Verifica:
-```bash
-node --version    # v18.0.0 o superior
-npm --version     # v9.0.0 o superior
-```
+In production the whole app runs on one Vercel origin: the static frontend
+answers `/` and its assets, and every other path is rewritten to the Express
+function, so the client calls the API on its own origin.
 
----
+## API
 
-## 🚀 Inicio Rápido
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/xdextx/url-shortener-qr.git
-cd url-shortener-qr
-```
-
-### 2. Instalar dependencias
-
-```bash
-npm install
-```
-
-Esto instala automáticamente todas las dependencias del monorepo.
-
-### 3. Configurar variables de entorno
-
-```bash
-# Backend
-cp apps/backend/.env.example apps/backend/.env
-
-# Frontend
-cp apps/frontend/.env.example apps/frontend/.env
-
-# Database
-cp packages/database/.env.example packages/database/.env
-```
-
-Edita los `.env` según tu entorno (ver [sección Configuración](#-configuración)).
-
-### 4. Ejecutar en desarrollo
-
-```bash
-npm run dev
-```
-
-Esto inicia:
-- **Backend**: http://localhost:3000
-- **Frontend**: http://localhost:5173
-
----
-
-## 🛠️ Desarrollo
-
-### Comandos Disponibles
-
-```bash
-# Desarrollo simultáneo (backend + frontend)
-npm run dev
-
-# Servicios individuales
-npm run dev:backend
-npm run dev:frontend
-
-# Build (todo)
-npm run build
-
-# Build individual
-npm run build:frontend
-npm run build:backend
-npm run build:database
-
-# Tests
-npm run test
-
-# Linting
-npm run lint
-```
-
-### Workflow típico
-
-```bash
-# 1. Inicia el entorno de desarrollo
-npm run dev
-
-# 2. Abre http://localhost:5173 en tu navegador
-
-# 3. Haz cambios en el código
-# Los cambios se actualizan automáticamente (hot reload)
-
-# 4. Cuando termines, ejecuta tests
-npm run test
-
-# 5. Haz commit con mensaje descriptivo
-git commit -m "feat: nueva funcionalidad"
-```
-
----
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-#### Backend (`apps/backend/.env`)
-
-```env
-# Puerto del servidor
-PORT=3000
-
-# URL base para short URLs generados
-BASE_URL=http://localhost:3000
-
-# URL del frontend (para redirecciones)
-FRONTEND_URL=http://localhost:5173
-
-# Base de datos
-DATABASE_URL=file:./data/dev.db
-DATABASE_DRIVER=sqlite
-```
-
-**Notas:**
-- `BASE_URL` se usa en la tabla de URLs (debe ser igual en producción)
-- `FRONTEND_URL` es donde redirige `GET /` si alguien visita la raíz
-- La raíz sirve el frontend compilado después del build
-
-#### Frontend (`apps/frontend/.env`)
-
-```env
-# URL de la API del backend
-VITE_API_BASE_URL=http://localhost:3000
-
-# Puerto de desarrollo
-VITE_PORT=5173
-```
-
-#### Database (`packages/database/.env`)
-
-```env
-# Ruta de la base de datos
-DATABASE_URL=file:./data/dev.db
-
-# Driver a usar (sqlite es el default)
-DATABASE_DRIVER=sqlite
-```
-
----
-
-## 📡 API REST
-
-### Crear Short URL
+All responses are JSON unless noted. Examples use the live demo.
 
 **POST** `/api/v1/urls`
 
-Crea un nuevo short URL. Si la URL original ya existe, retorna el código existente.
+Shortens a URL. Shortening a URL that already exists returns its existing code.
 
-**Request:**
 ```bash
-curl -X POST http://localhost:3000/api/v1/urls \
+curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
   -H "Content-Type: application/json" \
-  -d '{"originalUrl":"https://www.example.com/very/long/path"}'
+  -d '{"originalUrl":"https://example.com/a/long/path"}'
 ```
 
-**Response:** (201 Created)
 ```json
 {
-  "code": "abc123",
-  "shortUrl": "http://localhost:3000/abc123",
-  "originalUrl": "https://www.example.com/very/long/path",
-  "qrCodeDataUrl": "data:image/png;base64,iVBORw0KGgo..."
-}
-```
-
-### Obtener Short URL
-
-**GET** `/api/v1/urls/:code`
-
-Recupera detalles de un short URL.
-
-```bash
-curl http://localhost:3000/api/v1/urls/abc123
-```
-
-**Response:** (200 OK)
-```json
-{
-  "code": "abc123",
-  "shortUrl": "http://localhost:3000/abc123",
-  "originalUrl": "https://www.example.com/very/long/path",
+  "code": "aB3dE5fG",
+  "shortUrl": "https://url-shortener-qr-three.vercel.app/aB3dE5fG",
+  "originalUrl": "https://example.com/a/long/path",
   "qrCodeDataUrl": "data:image/png;base64,..."
 }
 ```
 
-### Redirigir
+- `201` the short link was created or already existed.
+- `400` the URL is missing, longer than 2048 characters, malformed, or not
+  `http`/`https`; the body carries a `message`.
+- `500` the store failed; the body carries only a generic `message`.
 
-**GET** `/:code` → Redirige al URL original e incrementa hits
+**GET** `/api/v1/urls/:code`
 
-```bash
-curl -L http://localhost:3000/abc123
-# Redirige a: https://www.example.com/very/long/path
-```
+Returns the same fields as above for an existing code.
 
-### Health Check
+- `200` found.
+- `404` no short link has that code.
+- `500` the store failed.
+
+**GET** `/:code`
+
+Redirects to the original URL and counts a hit.
+
+- `302` redirect to the original URL.
+- `404` no short link has that code (plain text).
+- `500` the store failed (plain text).
 
 **GET** `/health`
 
-```bash
-curl http://localhost:3000/health
-# {"status":"ok"}
-```
+- `200` `{"status":"ok"}`.
 
----
+**GET** `/`
 
-## 🧪 Testing
+When the API runs on its own, redirects (`302`) to `FRONTEND_URL`. On Vercel
+the static frontend answers `/` first.
 
-### Ejecutar tests
+## Running locally
 
-```bash
-# Todos los tests
-npm run test
-
-# Solo backend
-npm --workspace @url-shortener/backend run test
-
-# Watch mode
-npm --workspace @url-shortener/backend run test:watch
-
-# Con cobertura
-npm run test -- --coverage
-```
-
-### Escribir tests
-
-Los tests van en `apps/backend/tests/` y usan **Vitest**:
-
-```typescript
-import { describe, it, expect, beforeEach } from "vitest";
-import { createShortUrl } from "../src/services/url.service";
-
-describe("createShortUrl", () => {
-  beforeEach(async () => {
-    await clearStore(); // Limpia BD antes de cada test
-  });
-
-  it("crea un short URL válido", async () => {
-    const result = await createShortUrl("https://example.com");
-    
-    expect(result.originalUrl).toBe("https://example.com");
-    expect(result.code).toBeDefined();
-    expect(result.qrCodeDataUrl).toContain("data:image/png");
-  });
-});
-```
-
----
-
-## 📦 Build & Deploy
-
-### Build Local
+Requirements: Node.js 20 or later, npm 10 or later.
 
 ```bash
+git clone https://github.com/XDextX/url-shortener-qr.git
+cd url-shortener-qr
+npm install
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
+npm run dev
+```
+
+The API listens on http://localhost:3000 and the client on
+http://localhost:5173. Locally the store is SQLite, so no database server is
+needed.
+
+The variables that matter, in `apps/backend/.env`:
+
+- `PORT`: the API's port, `3000` by default.
+- `BASE_URL`: the origin short links are built on; locally
+  `http://localhost:3000`.
+- `FRONTEND_URL`: where `GET /` redirects and the origin CORS allows.
+- `DATABASE_DRIVER` and `DATABASE_URL`: `sqlite` and a `file:` path by
+  default; `postgres` and a connection string for Postgres.
+
+## Testing
+
+```bash
+npm test
 npm run build
 ```
 
-Genera:
-- Backend compilado en `apps/backend/dist/`
-- Frontend compilado en `apps/frontend/dist/`
-- Frontend copiado a `dist/` para servir desde backend
+`npm test` runs every workspace's suite with Vitest; `npm run build` compiles
+every workspace. Both must pass for a change to count as done.
 
-### Ejecutar Build
+The database contract suite always runs against SQLite in memory. To run it
+against Postgres too, set `TEST_DATABASE_URL` to a disposable database, such as
+a Neon development branch: the suite empties the table it tests.
 
-```bash
-npm run build
-npm run start   # Usa dist/ del backend
-```
-
-El servidor sirve:
-- `/api/*` → API del backend
-- `/*` → Frontend (SPA)
-
-### Deploy on Vercel
+## Deploying
 
 The whole app runs on one Vercel project: the frontend is served as static
-files from `dist/`, and `api/index.ts` runs the Express backend as a function.
-Links are stored in Postgres (Neon) through Prisma; SQLite stays for local
-development and tests. Spec 002 holds the decisions.
-
-#### 1. Create the project
+files, and `api/index.ts` runs the Express backend as a function. Links are
+stored in Postgres (Neon) through Prisma.
 
 1. In Vercel, **Add New → Project** and import this repository. Leave the
    framework preset as **Other**: `vercel.json` sets the build command and the
@@ -388,278 +152,25 @@ development and tests. Spec 002 holds the decisions.
 2. In the project, **Storage → Neon → Create**, and connect it to every
    environment. Neon adds `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED`
    (direct, used by migrations).
-
-#### 2. Environment variables
-
-In **Settings → Environment Variables**, add:
-
-```
-DATABASE_DRIVER=postgres
-```
-
-Nothing else is required. Short links are built on `BASE_URL` if set, else on
-the production domain Vercel exposes as `VERCEL_PROJECT_PRODUCTION_URL`. In a
-production build the frontend calls the API on its own origin, so
-`VITE_API_BASE_URL` is only for an API hosted elsewhere.
+3. In **Settings → Environment Variables**, add `DATABASE_DRIVER=postgres`.
+   Nothing else is required: short links are built on `BASE_URL` if set, else
+   on the production domain Vercel provides.
+4. Push to `main`. The build runs `npm run build` and then `npm run db:deploy`
+   (`prisma migrate deploy`), so a failed migration fails the deploy before it
+   reaches visitors.
 
 Preview deployments share the production database.
 
-#### 3. Deploy
+## Roadmap
 
-Every push to `main` deploys. The build runs `npm run build` and then
-`npm run db:deploy` (`prisma migrate deploy`), so a failed migration fails the
-deploy before it reaches visitors. The schema changes only through
-`packages/database/prisma/migrations`.
+- Rate limiting per IP on link creation.
+- Custom aliases chosen by the user.
+- A statistics view for each link's hits.
+- Links that expire after a chosen time.
 
-#### 4. Check it
+## License and contact
 
-```bash
-curl https://<your-app>.vercel.app/health
-curl -X POST https://<your-app>.vercel.app/api/v1/urls \
-  -H "Content-Type: application/json" \
-  -d '{"originalUrl":"https://example.com"}'
-```
+Released under the MIT licence.
 
-The second call answers 201 with a `shortUrl` on the production domain; opening
-it redirects (302) to the original URL.
-
-**Routes:** `/` and the static assets are the frontend; `/api/*` and `/health`
-are the API; `/<code>` redirects to the original URL.
-
-**If something fails:** read the deployment's build and function logs in
-Vercel. A store failure answers 500 with a `message` field; the cause is in the
-function log, never in the response.
-
----
-
-## 🎨 Frontend
-
-### Agregar componentes
-
-Los componentes van en `apps/frontend/src/components/`:
-
-```typescript
-// Button.tsx
-import React from "react";
-
-interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  loading?: boolean;
-}
-
-export const Button = ({ children, onClick, loading }: ButtonProps) => {
-  return (
-    <button 
-      onClick={onClick} 
-      disabled={loading}
-      className="px-4 py-2 bg-accent text-white rounded hover:bg-accent/90"
-    >
-      {loading ? "Cargando..." : children}
-    </button>
-  );
-};
-```
-
-### Agregar traducciones
-
-1. Edita `apps/frontend/src/i18n/resources/es/common.json`:
-   ```json
-   {
-     "home": "Inicio",
-     "contact": "Contacto"
-   }
-   ```
-
-2. Usa en componentes:
-   ```typescript
-   import { useTranslation } from "react-i18next";
-   
-   const MyComponent = () => {
-     const { t } = useTranslation();
-     return <h1>{t("home")}</h1>;
-   };
-   ```
-
-### Agregar idiomas
-
-1. Crea `apps/frontend/src/i18n/resources/[idioma]/common.json`
-2. Edita `apps/frontend/src/i18n/provider.tsx`
-3. Aparecerá en el selector
-
----
-
-## 🗄️ Base de Datos
-
-### Cambiar Driver
-
-El proyecto soporta drivers modulares; se eligen con `DATABASE_DRIVER`.
-
-**Drivers disponibles:**
-- `sqlite` (default): sql.js sobre `packages/database/data/dev.db`, para desarrollo y tests
-- `postgres`: Prisma sobre Postgres (Neon en producción); necesita `DATABASE_URL`
-
-### Inspeccionar BD
-
-```bash
-# SQLite CLI
-sqlite3 packages/database/data/dev.db ".tables"
-
-# GUI: https://sqlitebrowser.org/
-```
-
-**Schema:**
-```sql
-CREATE TABLE "Url" (
-  "id" TEXT PRIMARY KEY,
-  "code" TEXT UNIQUE NOT NULL,
-  "originalUrl" TEXT UNIQUE NOT NULL,
-  "qrSvg" TEXT,
-  "hits" INTEGER DEFAULT 0,
-  "createdAt" TEXT NOT NULL,
-  "updatedAt" TEXT NOT NULL
-);
-
-CREATE INDEX "Url_code_key" ON "Url"("code");
-CREATE INDEX "Url_originalUrl_key" ON "Url"("originalUrl");
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Port ya en uso
-
-```bash
-# Cambiar puerto backend
-PORT=3001 npm run dev:backend
-
-# Cambiar puerto frontend (edita .env)
-VITE_PORT=5174
-```
-
-### Error de CORS
-
-```
-Access to XMLHttpRequest blocked by CORS policy
-```
-
-**Solución:**
-- Frontend: Configura `VITE_API_BASE_URL` correctamente
-- Backend: Revisa CORS en `apps/backend/src/app.ts`
-
-### BD corrupta
-
-```bash
-rm packages/database/data/dev.db
-npm run dev
-```
-
-### npm install falla
-
-```bash
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Hot reload no funciona
-
-```bash
-# Reinicia el dev server
-npm run dev
-```
-
----
-
-## 📝 Convenciones
-
-### Commits
-
-```
-feat: nueva funcionalidad
-fix: corrección de bug
-docs: actualización de documentación
-style: cambios de formato
-refactor: refactorización
-test: tests
-ci: configuración CI/CD
-```
-
-### Branches
-
-```
-main       → Producción
-develop    → Integración
-feature/*  → Nuevas features
-fix/*      → Bug fixes
-```
-
-### TypeScript
-
-- ✅ Tipado estricto obligatorio
-- ❌ No usar `any`
-- ✅ Interfaces documentadas
-- ✅ Tipos compartidos en `packages/`
-
----
-
-## 🚀 Próximos Pasos
-
-**MVP Actual:** ✅ Funcional  
-**Roadmap:**
-
-- [ ] Admin dashboard con estadísticas
-- [ ] Aliases personalizados
-- [ ] Autenticación de usuarios
-- [ ] Expiración automática de URLs
-- [ ] Rate limiting por IP
-- [ ] Integración OAuth
-- [ ] API key para uso programático
-- [ ] Exportar QR en PNG/SVG
-
----
-
-## 📄 Licencia
-
-MIT
-
----
-
-## 🤝 Contribuciones
-
-Las contribuciones son bienvenidas!
-
-1. Fork el proyecto
-2. Crea una branch: `git checkout -b feature/AmazingFeature`
-3. Commit: `git commit -m 'feat: add AmazingFeature'`
-4. Push: `git push origin feature/AmazingFeature`
-5. Abre un Pull Request
-
-Por favor:
-- Sigue las convenciones de código
-- Agrega tests para nuevas funcionalidades
-- Actualiza el README si es necesario
-
----
-
-## 📞 Soporte
-
-- **Issues**: Abre un [issue en GitHub](https://github.com/xdextx/url-shortener-qr/issues)
-- **Email**: germonram@gmail.com
-
----
-
-## 🙏 Agradecimientos
-
-- [Express.js](https://expressjs.com/)
-- [React](https://react.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Vite](https://vitejs.dev/)
-- [sql.js](https://sql.js.org/)
-
----
-
-**Made with ❤️ by [German Montero]**
-
-Última actualización: 2026-04-10 | Versión: 0.1.0
+- Issues: https://github.com/XDextX/url-shortener-qr/issues
+- Email: germonram@gmail.com
