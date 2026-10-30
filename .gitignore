@@ -9,7 +9,7 @@ dist/
 apps/backend/dist/
 apps/frontend/dist/
 packages/database/dist/
-packages/database/data/dev.db
+*.db
 apps/frontend/tsconfig.node.tsbuildinfo
 apps/frontend/vite.config.js
 
@@ -35,7 +35,6 @@ apps/frontend/coverage/
 *.swp
 packages/database/data/dev.db-journal
 
-.github/
 # Agent tooling: per machine, junctions made by .agents/link.ps1. Never tracked.
 .agents/
 .claude/
