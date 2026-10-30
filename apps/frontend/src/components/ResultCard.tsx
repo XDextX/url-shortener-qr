@@ -69,22 +69,24 @@ export const ResultCard = ({ result, onViewStats }: Props) => {
         >
           {result.shortUrl}
         </a>
-        <Button
-          type="button"
-          onClick={handleCopy}
-          loading={copying}
-          loadingText={t("result.copy.loading")}
-          className="mt-3 w-full sm:w-auto"
-        >
-          {copyLabel}
-        </Button>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="button"
+            onClick={handleCopy}
+            loading={copying}
+            loadingText={t("result.copy.loading")}
+            className="w-full sm:w-auto"
+          >
+            {copyLabel}
+          </Button>
+          {onViewStats ? (
+            <Button type="button" onClick={() => onViewStats(result.code)} className="w-full sm:w-auto">
+              {t("result.viewStats")}
+            </Button>
+          ) : null}
+        </div>
         {copyState === "error" ? (
           <p className="mt-1 text-xs text-accent">{t("result.copy.errorHelper")}</p>
-        ) : null}
-        {onViewStats ? (
-          <Button type="button" onClick={() => onViewStats(result.code)} className="mt-3 w-full sm:ml-3 sm:w-auto">
-            {t("result.viewStats")}
-          </Button>
         ) : null}
       </div>
 
