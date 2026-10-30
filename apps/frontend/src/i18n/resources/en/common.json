@@ -20,6 +20,9 @@
     "label": "Original URL",
     "placeholder": "https://example.com",
     "submit": "Generate short URL",
+    "aliasLabel": "Custom alias (optional)",
+    "aliasPlaceholder": "my-link",
+    "aliasHint": "3 to 32 letters, digits, - or _.",
     "loading": "Generating...",
     "error": "Invalid URL",
     "error.empty": "Please enter a URL",
@@ -27,7 +30,9 @@
     "error.protocol": "Only HTTP/HTTPS URLs are accepted",
     "error.tooLong": "URL is too long (maximum 2048 characters)",
     "error.server": "Error processing your URL. Please try again.",
-    "error.rateLimited": "Too many links in a short time. Wait a minute and try again."
+    "error.rateLimited": "Too many links in a short time. Wait a minute and try again.",
+    "error.aliasInvalid": "The alias must be 3 to 32 letters, digits, - or _.",
+    "error.aliasTaken": "That alias is already taken, or this URL already has a short link."
   },
   "result": {
     "title": "Your link is ready",

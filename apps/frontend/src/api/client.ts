@@ -33,13 +33,20 @@ export const resolveApiBaseUrl = (
 
 const getBaseApiUrl = (): string => resolveApiBaseUrl(import.meta.env, window.location.origin);
 
-export const createShortUrl = async (originalUrl: string): Promise<ShortUrlResponse> => {
+/**
+ * Asks the API for a short link.
+ * @param originalUrl - the URL to shorten
+ * @param alias - a chosen code (spec 005); omitted from the request when undefined
+ * @returns the short link and its QR
+ * @throws ApiError with the HTTP status on a non-2xx answer
+ */
+export const createShortUrl = async (originalUrl: string, alias?: string): Promise<ShortUrlResponse> => {
   const response = await fetch(`${getBaseApiUrl()}/api/v1/urls`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ originalUrl })
+    body: JSON.stringify({ originalUrl, alias })
   });
 
   if (!response.ok) {

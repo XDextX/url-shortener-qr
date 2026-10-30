@@ -11,7 +11,8 @@ Postgres.
 
 ## Overview
 
-- Shortens any `http` or `https` URL to an 8-character code.
+- Shortens any `http` or `https` URL to an 8-character code, or to an alias
+  the visitor chooses.
 - Generates a QR code for every short link.
 - Returns the existing code when the same URL is shortened twice.
 - Counts every redirect as a hit.
@@ -55,17 +56,19 @@ All responses are JSON unless noted. Examples use the live demo.
 **POST** `/api/v1/urls`
 
 Shortens a URL. Shortening a URL that already exists returns its existing code.
+An optional `alias` (3 to 32 letters, digits, `-` or `_`) becomes the code
+instead of a random one; `api`, `health` and `assets` are reserved.
 
 ```bash
 curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
   -H "Content-Type: application/json" \
-  -d '{"originalUrl":"https://example.com/a/long/path"}'
+  -d '{"originalUrl":"https://example.com/a/long/path","alias":"my-path"}'
 ```
 
 ```json
 {
-  "code": "aB3dE5fG",
-  "shortUrl": "https://url-shortener-qr-three.vercel.app/aB3dE5fG",
+  "code": "my-path",
+  "shortUrl": "https://url-shortener-qr-three.vercel.app/my-path",
   "originalUrl": "https://example.com/a/long/path",
   "qrCodeDataUrl": "data:image/png;base64,..."
 }
@@ -73,7 +76,9 @@ curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
 
 - `201` the short link was created or already existed.
 - `400` the URL is missing, longer than 2048 characters, malformed, or not
-  `http`/`https`; the body carries a `message`.
+  `http`/`https`, or the alias breaks its rule; the body carries a `message`.
+- `409` the alias is taken, or the URL already has a short link under another
+  code, which the `message` names.
 - `429` this client created too many links this minute (10 by default); the
   `Retry-After` header says how many seconds to wait. Clients are counted by a
   hash of their IP, so no address is stored.
@@ -168,7 +173,6 @@ Preview deployments share the production database.
 
 ## Roadmap
 
-- Custom aliases chosen by the user.
 - A statistics view for each link's hits.
 - Links that expire after a chosen time.
 

@@ -21,15 +21,33 @@ export interface ShortUrlPayload {
 }
 
 /**
+ * The requested alias cannot be used: another link has it, or the URL already has another code.
+ */
+export class AliasConflictError extends Error {
+  name = "AliasConflictError";
+}
+
+/**
  * Creates a short URL for the provided original address. If the URL already
  * exists, the stored record is reused to avoid generating duplicate codes.
+ * @param originalUrl - the validated URL to shorten
+ * @param alias - a validated code chosen by the visitor (spec 005), or none for a random one
+ * @throws AliasConflictError when the alias is taken or the URL already has another code
  */
-export const createShortUrl = async (originalUrl: string): Promise<ShortUrlPayload> => {
+export const createShortUrl = async (originalUrl: string, alias?: string): Promise<ShortUrlPayload> => {
   const existing = await findByOriginalUrl(originalUrl);
+
+  if (alias && existing && existing.code !== alias) {
+    throw new AliasConflictError(`This URL already has a short link: ${existing.code}`);
+  }
+  if (alias && !existing && (await findByCode(alias))) {
+    throw new AliasConflictError(`The alias "${alias}" is already taken.`);
+  }
+
   const record =
     existing ??
     (await saveUrl({
-      code: createShortCode(),
+      code: alias ?? createShortCode(),
       originalUrl
     }));
 

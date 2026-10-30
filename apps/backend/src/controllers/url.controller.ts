@@ -1,5 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { createShortUrl, findOriginalUrl, resolveOriginalUrl } from "../services/url.service.js";
+import {
+  AliasConflictError,
+  createShortUrl,
+  findOriginalUrl,
+  resolveOriginalUrl
+} from "../services/url.service.js";
+import { validateAlias } from "../utils/alias-validator.js";
 import { InvalidUrlError, validateUrl } from "../utils/url-validator.js";
 import { checkCreationQuota } from "../services/rate-limit.service.js";
 import { loadEnvConfig } from "../config/env.js";
@@ -27,15 +33,22 @@ export const limitCreationHandler = async (req: Request, res: Response, next: Ne
 };
 
 export const createShortUrlHandler = async (req: Request, res: Response): Promise<void> => {
-  const { originalUrl } = req.body as { originalUrl?: string };
+  const { originalUrl, alias } = req.body as { originalUrl?: string; alias?: string };
 
   try {
     validateUrl(originalUrl);
-    const payload = await createShortUrl(originalUrl);
+    if (alias !== undefined) {
+      validateAlias(String(alias));
+    }
+    const payload = await createShortUrl(originalUrl, alias);
     res.status(201).json(payload);
   } catch (error) {
     if (error instanceof InvalidUrlError) {
       res.status(400).json({ message: error.message });
+      return;
+    }
+    if (error instanceof AliasConflictError) {
+      res.status(409).json({ message: error.message });
       return;
     }
     // A store failure: the internal error text stays in the server log, never in the response.
