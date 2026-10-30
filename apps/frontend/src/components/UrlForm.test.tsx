@@ -15,7 +15,9 @@ const sample = {
   code: "my-alias",
   shortUrl: "https://short.example/my-alias",
   originalUrl: "https://example.com",
-  qrCodeDataUrl: "data:image/png;base64,"
+  qrCodeDataUrl: "data:image/png;base64,",
+  hits: 0,
+  createdAt: "2026-10-29T12:00:00.000Z"
 };
 
 /**

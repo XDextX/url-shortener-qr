@@ -5,7 +5,7 @@
   Files: `apps/backend/src/services/url.service.ts`, `apps/backend/tests/stats.test.ts`
   Done when: the stats test passes and dropping `hits` turns it red.
 
-- [ ] **T-2 — The statistics lookup**
+- [x] **T-2 — The statistics lookup**
   Covers: RF-2, RF-3, RF-4, RF-5
   Files: `apps/frontend/src/api/client.ts`, `apps/frontend/src/components/LinkStats.tsx`,
   `apps/frontend/src/components/ResultCard.tsx`, `apps/frontend/src/App.tsx`,
