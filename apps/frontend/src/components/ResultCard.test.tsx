@@ -10,7 +10,9 @@ const sampleResult: ShortUrlResponse = {
   code: "abc12345",
   shortUrl: "https://short.ly/abc12345",
   originalUrl: "https://example.com/very-long-url",
-  qrCodeDataUrl: "data:image/svg+xml;base64,PHN2ZyB2ZXJ5IGZha2U+PC9zdmc+"
+  qrCodeDataUrl: "data:image/svg+xml;base64,PHN2ZyB2ZXJ5IGZha2U+PC9zdmc+",
+  hits: 0,
+  createdAt: "2026-10-29T12:00:00.000Z"
 };
 
 describe("ResultCard", () => {

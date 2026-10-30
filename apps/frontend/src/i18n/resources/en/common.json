@@ -44,6 +44,21 @@
       "success": "URL copied",
       "error": "Error copying URL",
       "errorHelper": "Automatic copy failed. Try copying it manually."
-    }
+    },
+    "viewStats": "View statistics"
+  },
+  "stats": {
+    "title": "Link statistics",
+    "inputLabel": "Short link or code",
+    "placeholder": "https://url-shortener-qr-three.vercel.app/my-link",
+    "submit": "Show statistics",
+    "loading": "Looking up...",
+    "originalUrl": "Original URL",
+    "hitsLabel": "Visits",
+    "hits_one": "{{count}} visit",
+    "hits_other": "{{count}} visits",
+    "createdAt": "Created",
+    "notFound": "No link has that code.",
+    "error": "Could not load the statistics. Please try again."
   }
 }

@@ -44,6 +44,21 @@
       "success": "URL copiada",
       "error": "Error al copiar",
       "errorHelper": "No se pudo copiar automaticamente. Intentalo manualmente."
-    }
+    },
+    "viewStats": "Ver estadísticas"
+  },
+  "stats": {
+    "title": "Estadísticas del enlace",
+    "inputLabel": "Enlace corto o código",
+    "placeholder": "https://url-shortener-qr-three.vercel.app/mi-enlace",
+    "submit": "Ver estadísticas",
+    "loading": "Buscando...",
+    "originalUrl": "URL original",
+    "hitsLabel": "Visitas",
+    "hits_one": "{{count}} visita",
+    "hits_other": "{{count}} visitas",
+    "createdAt": "Creado",
+    "notFound": "Ningún enlace tiene ese código.",
+    "error": "No se pudieron cargar las estadísticas. Intenta de nuevo."
   }
 }

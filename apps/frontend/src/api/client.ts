@@ -3,6 +3,8 @@ export interface ShortUrlResponse {
   shortUrl: string;
   originalUrl: string;
   qrCodeDataUrl: string;
+  hits: number;
+  createdAt: string;
 }
 
 /**
@@ -52,6 +54,23 @@ export const createShortUrl = async (originalUrl: string, alias?: string): Promi
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
     throw new ApiError(errorBody.message ?? "Error al crear el short URL", response.status);
+  }
+
+  return response.json();
+};
+
+/**
+ * Asks the API for a link's statistics (spec 006).
+ * @param code - the short link's code
+ * @returns the link, with its hits and creation date
+ * @throws ApiError with the HTTP status on a non-2xx answer, 404 when no link has that code
+ */
+export const fetchLinkStats = async (code: string): Promise<ShortUrlResponse> => {
+  const response = await fetch(`${getBaseApiUrl()}/api/v1/urls/${encodeURIComponent(code)}`);
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new ApiError(errorBody.message ?? "Lookup failed", response.status);
   }
 
   return response.json();

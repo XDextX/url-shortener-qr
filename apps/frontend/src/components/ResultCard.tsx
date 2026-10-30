@@ -5,9 +5,11 @@ import { Button } from "@components/Button";
 
 interface Props {
   result: ShortUrlResponse | null;
+  /** Called with the link's code when the visitor asks for its statistics (spec 006). */
+  onViewStats?: (code: string) => void;
 }
 
-export const ResultCard = ({ result }: Props) => {
+export const ResultCard = ({ result, onViewStats }: Props) => {
   const { t } = useTranslation();
   const [copying, setCopying] = useState(false);
   const [copyState, setCopyState] = useState<"idle" | "success" | "error">("idle");
@@ -78,6 +80,11 @@ export const ResultCard = ({ result }: Props) => {
         </Button>
         {copyState === "error" ? (
           <p className="mt-1 text-xs text-accent">{t("result.copy.errorHelper")}</p>
+        ) : null}
+        {onViewStats ? (
+          <Button type="button" onClick={() => onViewStats(result.code)} className="mt-3 w-full sm:ml-3 sm:w-auto">
+            {t("result.viewStats")}
+          </Button>
         ) : null}
       </div>
 

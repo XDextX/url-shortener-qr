@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import { ShortUrlResponse } from "@api/client";
 import { UrlForm } from "@components/UrlForm";
 import { ResultCard } from "@components/ResultCard";
+import { LinkStats } from "@components/LinkStats";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 import { ThemeSwitcher } from "@components/ThemeSwitcher";
 
 const App = () => {
   const { t } = useTranslation();
   const [result, setResult] = useState<ShortUrlResponse | null>(null);
+  const [statsCode, setStatsCode] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-background text-text-primary transition-colors duration-200">
@@ -32,7 +34,11 @@ const App = () => {
         </div>
 
         <div className="mt-6">
-          <ResultCard result={result} />
+          <ResultCard result={result} onViewStats={setStatsCode} />
+        </div>
+
+        <div className="mt-6">
+          <LinkStats requestedCode={statsCode} />
         </div>
       </main>
 

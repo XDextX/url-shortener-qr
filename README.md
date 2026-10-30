@@ -15,7 +15,8 @@ Postgres.
   the visitor chooses.
 - Generates a QR code for every short link.
 - Returns the existing code when the same URL is shortened twice.
-- Counts every redirect as a hit.
+- Counts every redirect as a hit, and shows each link's visits and creation
+  date on the page.
 - Limits link creation per client, so no one can flood the database.
 - English and Spanish interface, light and dark theme.
 - No sign-up: open the page and use it.
@@ -70,7 +71,9 @@ curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
   "code": "my-path",
   "shortUrl": "https://url-shortener-qr-three.vercel.app/my-path",
   "originalUrl": "https://example.com/a/long/path",
-  "qrCodeDataUrl": "data:image/png;base64,..."
+  "qrCodeDataUrl": "data:image/png;base64,...",
+  "hits": 0,
+  "createdAt": "2026-10-29T12:00:00.000Z"
 }
 ```
 
@@ -86,7 +89,8 @@ curl -X POST https://url-shortener-qr-three.vercel.app/api/v1/urls \
 
 **GET** `/api/v1/urls/:code`
 
-Returns the same fields as above for an existing code.
+Returns the same fields as above for an existing code, `hits` being how many
+times the link was opened. Lookups are not counted as hits.
 
 - `200` found.
 - `404` no short link has that code.
@@ -173,7 +177,6 @@ Preview deployments share the production database.
 
 ## Roadmap
 
-- A statistics view for each link's hits.
 - Links that expire after a chosen time.
 
 ## License and contact

@@ -18,6 +18,8 @@ export interface ShortUrlPayload {
   shortUrl: string;
   originalUrl: string;
   qrCodeDataUrl: string;
+  hits: number;
+  createdAt: string;
 }
 
 /**
@@ -58,7 +60,9 @@ export const createShortUrl = async (originalUrl: string, alias?: string): Promi
     code: record.code,
     shortUrl,
     originalUrl: record.originalUrl,
-    qrCodeDataUrl
+    qrCodeDataUrl,
+    hits: record.hits,
+    createdAt: record.createdAt.toISOString()
   };
 };
 
@@ -79,7 +83,9 @@ export const findOriginalUrl = async (code: string): Promise<ShortUrlPayload | n
     code,
     shortUrl,
     originalUrl: stored.originalUrl,
-    qrCodeDataUrl
+    qrCodeDataUrl,
+    hits: stored.hits,
+    createdAt: stored.createdAt.toISOString()
   };
 };
 
