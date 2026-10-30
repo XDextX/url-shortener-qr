@@ -1,6 +1,6 @@
 # Tasks 006 — Hit statistics view
 
-- [ ] **T-1 — Carry hits and the creation date in the API**
+- [x] **T-1 — Carry hits and the creation date in the API**
   Covers: RF-1
   Files: `apps/backend/src/services/url.service.ts`, `apps/backend/tests/stats.test.ts`
   Done when: the stats test passes and dropping `hits` turns it red.
