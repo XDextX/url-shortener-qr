@@ -15,7 +15,7 @@ Each visual task stops for the owner's approval in light and dark before its com
   Files: `apps/frontend/src/components/Button.tsx`, the guard
   Done when: approved in both themes.
 
-- [ ] **T-3 — Form**
+- [x] **T-3 — Form**
   Covers: RF-3, RF-4, RF-5, RF-6
   Files: `apps/frontend/src/components/UrlForm.tsx`, `apps/frontend/src/index.css`, the guard
   Done when: approved in both themes, with an error showing.

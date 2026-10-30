@@ -47,6 +47,13 @@ body {
   --color-focus: 245 247 250;
 }
 
+@layer components {
+  /* The one look of every text field and select; the default placeholder grey is not a theme colour. */
+  .field {
+    @apply mt-1 w-full rounded border border-control-border bg-surface px-3 py-2 text-text-primary transition-colors placeholder:text-text-secondary hover:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus;
+  }
+}
+
 html,
 body {
   background-color: rgb(var(--color-background));

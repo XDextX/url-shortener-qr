@@ -101,7 +101,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           placeholder={t("form.placeholder")}
-          className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+          className="field"
           required
         />
       </label>
@@ -113,7 +113,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
           onChange={(event) => setAlias(event.target.value)}
           placeholder={t("form.aliasPlaceholder")}
           aria-describedby="alias-hint"
-          className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+          className="field"
         />
         <span id="alias-hint" className="mt-1 block text-xs font-normal text-text-secondary">
           {t("form.aliasHint")}
@@ -124,7 +124,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
         <select
           value={expiresIn}
           onChange={(event) => setExpiresIn(event.target.value)}
-          className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+          className="field"
         >
           <option value="">{t("form.expires.never")}</option>
           {LIFETIMES.map((lifetime) => (
@@ -134,7 +134,7 @@ export const UrlForm = ({ onSuccess }: Props) => {
           ))}
         </select>
       </label>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-error">{error}</p> : null}
       <Button type="submit" loading={loading} loadingText={t("form.loading")}>
         {t("form.submit")}
       </Button>
